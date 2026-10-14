@@ -1,0 +1,12 @@
+# Credenciales de red: nunca al repo
+secrets.h
+
+# Basura del sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Salidas de compilacion
+build/
+*.bin
+*.elf
