@@ -22,9 +22,8 @@ except ImportError:
 
 
 PRESETS = {
-    "Icono + texto (52 x 52)":       (52, 52),      
+    "Icono 64 x 64 (menus y macros)": (64, 64),
     "Icono ancho (138 x 54)":        (138, 54),
-    "Icono grande (64 x 64)":        (64, 64),
     "Boton completo (154 x 100)":    (154, 100),    
     "Personalizado...":              None,
 }
@@ -47,12 +46,14 @@ class App(tk.Tk):
 
         base = os.path.dirname(os.path.abspath(__file__))
         self.var_salida = tk.StringVar(value=os.path.join(base, "data"))
-        self.var_preset = tk.StringVar(value="Icono + texto (52 x 52)")
-        self.var_w = tk.StringVar(value="52")
-        self.var_h = tk.StringVar(value="52")
+        self.var_preset = tk.StringVar(value="Icono 64 x 64 (menus y macros)")
+        self.var_w = tk.StringVar(value="64")
+        self.var_h = tk.StringVar(value="64")
         self.var_modo = tk.StringVar(value="contener")
         self.var_fondo = tk.StringVar(value="color") 
-        self.var_nombres = tk.StringVar(value="boton") 
+        self.var_nombres = tk.StringVar(value="prefijo")
+        self.var_prefijo = tk.StringVar(value="menu")
+        self.var_inicio = tk.StringVar(value="1")
 
         self._build_ui()
         self._aplicar_preset()
@@ -66,7 +67,7 @@ class App(tk.Tk):
         cont.columnconfigure(1, weight=2)
         cont.rowconfigure(0, weight=1)
 
-        izq = ttk.LabelFrame(cont, text="1. Imagenes (el orden = boton 1, 2, 3...)", padding=8)
+        izq = ttk.LabelFrame(cont, text="1. Imagenes (el orden = numero de icono)", padding=8)
         izq.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
         izq.rowconfigure(0, weight=1)
         izq.columnconfigure(0, weight=1)
@@ -134,8 +135,11 @@ class App(tk.Tk):
         ttk.Button(sal, text="...", width=3, command=self.elegir_salida).grid(row=0, column=1, **pad)
 
         f3 = ttk.Frame(sal); f3.grid(row=1, column=0, columnspan=2, sticky="w")
-        ttk.Radiobutton(f3, text="Renombrar boton1.png, boton2.png...", value="boton",
+        ttk.Radiobutton(f3, text="Prefijo:", value="prefijo",
                         variable=self.var_nombres).pack(side="left")
+        ttk.Entry(f3, textvariable=self.var_prefijo, width=14).pack(side="left", padx=(4, 2))
+        ttk.Label(f3, text="desde").pack(side="left", padx=(6, 2))
+        ttk.Entry(f3, textvariable=self.var_inicio, width=4).pack(side="left")
         ttk.Radiobutton(f3, text="Conservar nombre", value="original",
                         variable=self.var_nombres).pack(side="left", padx=8)
 
@@ -303,6 +307,11 @@ class App(tk.Tk):
         os.makedirs(destino, exist_ok=True)
 
         w, h = self._tamano()
+        pref = self.var_prefijo.get().strip() or "icono"
+        try:
+            inicio = int(self.var_inicio.get())
+        except ValueError:
+            inicio = 1
         total = 0
         ok = 0
         self._log("-" * 58)
@@ -311,8 +320,8 @@ class App(tk.Tk):
         for i, ruta in enumerate(self.rutas, start=1):
             try:
                 img = self._procesar(ruta)
-                if self.var_nombres.get() == "boton":
-                    nombre = f"boton{i}.png"
+                if self.var_nombres.get() == "prefijo":
+                    nombre = f"{pref}{inicio + i - 1}.png"
                 else:
                     base = os.path.splitext(os.path.basename(ruta))[0]
                     nombre = f"{base[:24]}.png"       # LittleFS: nombres cortos

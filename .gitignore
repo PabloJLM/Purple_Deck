@@ -10,3 +10,5 @@ desktop.ini
 build/
 *.bin
 *.elf
+__pycache__/
+.pio/
