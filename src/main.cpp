@@ -85,9 +85,9 @@ static void leerToque()
 static void notificacionesDemo()
 {
   notifAgregar("Tesla Lab",  "Build del firmware terminado", "09:41", NOTIF_INFO);
-  notifAgregar("Pablo",      "Revisa el PR del deck",        "10:05", NOTIF_MENSAJE);
+  notifAgregar("Pablo",      "Decirle gay a daniel",        "10:05", NOTIF_MENSAJE);
   notifAgregar("Bateria",    "Fuente externa desconectada",  "10:12", NOTIF_ALERTA);
-  notifAgregar("Calendario", "Reunion con Dr. Rodas 14:00",  "10:30", NOTIF_INFO);
+  notifAgregar("Calendario", "Reunion con Dr. Rodas 13:00",  "10:30", NOTIF_INFO);
 }
 
 // ---------------------------------------------------------------------------
