@@ -1,19 +1,3 @@
-/*
-    Purple_Deck - WT32-SC01-Plus (ESP32-S3)
-    Menu principal con submenus de macros + pantalla idle con reloj y avisos.
-
-    Organizacion (igual que camioneta):
-      - .cpp en la raiz (Arduino IDE los compila solos)
-      - .h en subcarpetas por categoria: Drivers/, Estaticos/, Pantallas/
-      - cada pantalla = screenXEntrar/Loop/Salir, despachadas desde los
-        switch de este archivo, con su entrada en el enum Screen de config.h
-
-    Antes de compilar:
-      - copia secrets.example.h a secrets.h y pon tu red
-      - Herramientas -> Partition Scheme: uno con SPIFFS (para LittleFS)
-      - sube la carpeta data/ con el plugin LittleFS
-*/
-
 #include "config.h"
 #include "Drivers/display.h"
 #include "Drivers/tiempo.h"
