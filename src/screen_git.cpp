@@ -3,7 +3,7 @@
 #include "Drivers/acciones.h"
 
 // Iconos de 64x64 en LittleFS: /git_1.png ... (en el orden de la tabla)
-// Siete por pagina; el 8 y el 9 caen en la pagina 2.
+// Siete por pagina; del 8 en adelante caen en la pagina 2.
 static const Item ITEMS[] = {
   IT_ACC("Status",           nullptr, "/git_1.png", ACC_GIT_STATUS),
   IT_ACC("Pull",             nullptr, "/git_2.png", ACC_GIT_PULL),
@@ -14,6 +14,8 @@ static const Item ITEMS[] = {
   IT_ACC("Paleta",           nullptr, "/git_7.png", ACC_VS_PALETA),
   IT_ACC("Buscar",           nullptr, "/git_8.png", ACC_VS_BUSCAR),
   IT_ACC("Guardar\ntodo",    nullptr, "/git_9.png", ACC_VS_GUARDAR_TODO),
+  IT_ACC("Abrir\ncarpeta",   nullptr, "/git_10.png", ACC_VS_ABRIR_CARPETA),
+  IT_ACC("Terminal\nexterna", nullptr, "/git_11.png", ACC_VS_TERMINAL_EXT),
 };
 
 static const RejillaCfg CFG = {

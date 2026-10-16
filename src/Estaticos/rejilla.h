@@ -40,6 +40,7 @@ struct Item {
 #define IT_ACC(e, s, ic, a)      { e, s,       ic, ITEM_ACCION,   (uint8_t)(a), nullptr }
 #define IT_ACC_DIN(e, ic, a, f)  { e, nullptr, ic, ITEM_ACCION,   (uint8_t)(a), f       }
 #define IT_PANT(e, s, ic, p)     { e, s,       ic, ITEM_PANTALLA, (uint8_t)(p), nullptr }
+#define IT_PANT_DIN(e, ic, p, f) { e, nullptr, ic, ITEM_PANTALLA, (uint8_t)(p), f       }
 
 #define REJILLA_MAX_ITEMS 28          // 4 paginas de 7
 

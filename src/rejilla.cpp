@@ -170,8 +170,8 @@ static void pintarItem(lgfx::LGFXBase *g, uint8_t idx, bool presionado, int16_t 
   g->setTextDatum(middle_center);
 
   if (conIcono) {
-    // El punto (x, y) es el CENTRO de la imagen (datum middle_center)
-    g->drawPngFile(LittleFS, it.icono, cx, y + ICONO_LADO / 2, ICONO_LADO, ICONO_LADO,
+    // (x, y) es la esquina de la caja ICONO_LADO x ICONO_LADO; el datum centra dentro de ella
+    g->drawPngFile(LittleFS, it.icono, cx - ICONO_LADO / 2, y, ICONO_LADO, ICONO_LADO,
                    0, 0, 0.0f, 0.0f, datum_t::middle_center);
     y += ICONO_LADO + sepIcono;
   }

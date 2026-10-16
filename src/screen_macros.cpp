@@ -3,7 +3,7 @@
 #include "Drivers/acciones.h"
 
 // Iconos de 64x64 en LittleFS: /macros_1.png, /macros_2.png ... (en el orden
-// de esta tabla). Siete por pagina; el 8 y el 9 caen en la pagina 2.
+// de esta tabla). Siete por pagina; del 8 en adelante caen en la pagina 2.
 static const Item ITEMS[] = {
   IT_ACC("Vol +",       nullptr, "/macros_1.png", ACC_VOL_UP),
   IT_ACC("Vol -",       nullptr, "/macros_2.png", ACC_VOL_DOWN),
@@ -14,6 +14,8 @@ static const Item ITEMS[] = {
   IT_ACC("Captura",     nullptr, "/macros_7.png", ACC_CAPTURA),
   IT_ACC("Escritorio",  nullptr, "/macros_8.png", ACC_ESCRITORIO),
   IT_ACC("Bloq. PC",    nullptr, "/macros_9.png", ACC_BLOQUEAR_PC),
+  IT_ACC("Spotify",     nullptr, "/macros_10.png", ACC_ABRIR_SPOTIFY),
+  IT_ACC("Navegador",   nullptr, "/macros_11.png", ACC_ABRIR_NAVEGADOR),
 };
 
 static const RejillaCfg CFG = {

@@ -8,11 +8,11 @@
 // ---------------------------------------------------------------------------
 static const Item ITEMS[] = {
   IT_PANT("Macros",         "Volumen y media",  "/menu1.png", SCREEN_MACROS),
-  IT_PANT("SolidWorks",     "Vistas y rebuild", "/menu2.png", SCREEN_SOLIDWORKS),
+  IT_PANT("SolidWorks",     "Vistas y rotar",   "/menu2.png", SCREEN_SOLIDWORKS),
   IT_PANT("LabVIEW",        "Run y diagrama",   "/menu3.png", SCREEN_LABVIEW),
   IT_PANT("Git /\nVS Code", "Commit y push",    "/menu4.png", SCREEN_GIT),
   IT_PANT("Ajustes",        "Brillo y reposo",  "/menu5.png", SCREEN_AJUSTES),
-  IT_PANT("Arduino\nIDE",   "Compilar y subir", "/menu6.png", SCREEN_ARDUINO),
+  IT_PANT("Blender",        "Vistas y render",  "/menu6.png", SCREEN_BLENDER),
 };
 
 static const RejillaCfg CFG = {

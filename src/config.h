@@ -1,57 +1,82 @@
 #ifndef PURPLE_DECK_CONFIG_H_
 #define PURPLE_DECK_CONFIG_H_
-// ---------------------------------------------------------------------------
-//  config.h - constantes globales y enum de pantallas (estilo camioneta)
-// ---------------------------------------------------------------------------
 #include <Arduino.h>
 
-// ---- Pantalla fisica (horizontal) ----
 #define ANCHO 480
 #define ALTO  320
 
-// ---- Rejilla de botones (menu principal y submenus) ----
-#define GAP       6      // separacion entre botones (px)
-#define RAD       10     // radio de las esquinas
+#define GAP 6
+#define RAD 10
 
-// ---- Idle / bloqueo ----
-// Valores de arranque: en Ajustes se pueden cambiar mientras el deck esta
-// encendido (no se guardan al reiniciar).
-#define IDLE_TIMEOUT_MS   10000UL    // sin tocar -> entra al idle
-#define BRILLO_NORMAL     200
-#define BRILLO_IDLE       110
+#define IDLE_TIMEOUT_MS 10000UL
+#define BRILLO_NORMAL   200
+#define BRILLO_IDLE     110
+#define BRILLO_MIN_PCT  5
+#define REPOSO_MIN_S    5
+#define REPOSO_MAX_S    300
 
-// ---- Reloj ----
 enum RelojModo : uint8_t { RELOJ_ANALOGICO = 0, RELOJ_DIGITAL = 1 };
-#define RELOJ_POR_DEFECTO RELOJ_DIGITAL   // con que arranca el idle
+#define RELOJ_POR_DEFECTO RELOJ_DIGITAL
 
-// ---- Zona horaria (Guatemala, sin horario de verano) ----
+enum BloqueoModo : uint8_t { BLOQUEO_RELOJ = 0, BLOQUEO_SLIDES = 1 };
+#define SLIDES_DIR "/slides"
+#define SLIDE_MS   8000UL
+
+#define SD_CS   41
+#define SD_MOSI 40
+#define SD_CLK  39
+#define SD_MISO 38
+
 #define TZ_LOCAL "CST6"
 #define NTP_1 "pool.ntp.org"
 #define NTP_2 "time.nist.gov"
 
-// ---- Pantallas ----
+#define TOQUE_TOL    15
+#define DESLIZAR_MIN 90
+
 enum Screen : uint8_t {
-  SCREEN_MENU = 0,       // menu principal
+  SCREEN_MENU = 0,
   SCREEN_MACROS,
   SCREEN_SOLIDWORKS,
+  SCREEN_SW_ROTAR,
   SCREEN_LABVIEW,
-  SCREEN_GIT,            // Git + VS Code
+  SCREEN_GIT,
+  SCREEN_BLENDER,
   SCREEN_AJUSTES,
-  SCREEN_ARDUINO,
-  SCREEN_IDLE            // bloqueo: reloj + notificaciones
+  SCREEN_BRILLO,
+  SCREEN_REPOSO,
+  SCREEN_TEMAS,
+  SCREEN_IDLE,
+  SCREEN_SLIDES
 };
 
 extern Screen pantallaActual;
 void irAPantalla(Screen s);
-void salirDeIdle();      // vuelve a la pantalla donde estaba antes del idle
+void salirDeIdle();
 
-// ---- Estado del toque, compartido por todas las pantallas ----
-extern bool    toqueNuevo;    // true solo en el ciclo del flanco de bajada
-extern bool    toqueActivo;   // dedo abajo ahora
+// toquePropio: el gesto empezo en la pantalla actual (no viene de la anterior)
+extern bool    toqueNuevo;
+extern bool    toqueActivo;
+extern bool    toqueSuelto;
+extern bool    toquePropio;
 extern int32_t toqueX, toqueY;
+extern int32_t toqueX0, toqueY0;
 
-// ---- Ajustes en vivo (se cambian desde la pantalla Ajustes) ----
-extern uint32_t idleTimeoutMs;   // arranca en IDLE_TIMEOUT_MS
-extern uint8_t  brilloNormal;    // arranca en BRILLO_NORMAL
+inline int32_t absI(int32_t v) { return v < 0 ? -v : v; }
+
+inline bool fueToque()
+{
+  return toqueSuelto && absI(toqueX - toqueX0) < TOQUE_TOL && absI(toqueY - toqueY0) < TOQUE_TOL;
+}
+
+inline bool deslizoDerecha()
+{
+  const int32_t dx = toqueX - toqueX0;
+  return toqueSuelto && dx > DESLIZAR_MIN && dx > 2 * absI(toqueY - toqueY0);
+}
+
+extern uint32_t idleTimeoutMs;
+extern uint8_t  brilloNormal;
+extern uint8_t  modoBloqueo;
 
 #endif  // PURPLE_DECK_CONFIG_H_

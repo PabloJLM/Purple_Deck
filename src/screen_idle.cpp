@@ -24,6 +24,10 @@
 
 static const uint16_t COL_ALERTA = rgb565(198, 70, 52);
 
+#define LISTA_Y     (PANEL_Y + CAB_H + 10)
+#define LISTA_H     (ALTO - LISTA_Y)
+#define PASO_SCROLL ((NOTIF_H + NOTIF_SEP) / 2)
+
 // ---- Estado ---------------------------------------------------------------
 static LGFX_Sprite s_spReloj(&lcd);
 static bool      s_spOk    = false;
@@ -32,6 +36,11 @@ static RelojModo s_modo    = (RelojModo)RELOJ_POR_DEFECTO;
 static int      s_ultSeg   = -1;
 static int      s_ultMin   = -1;
 static uint32_t s_ultNotif = 0xFFFFFFFF;
+
+static LGFX_Sprite s_spLista(&lcd);
+static bool      s_spListaOk = false;
+static int16_t   s_primera    = 0;
+static int16_t   s_primeraIni = 0;
 
 // ---------------------------------------------------------------------------
 RelojModo relojModo() { return s_modo; }
@@ -94,7 +103,7 @@ static void dibujarReloj(const struct tm &t, bool valido)
 
   g->setFont(&fonts::Font0);
   g->setTextColor(tm_.textoTenue);
-  g->drawString("toca para desbloquear", ox + CARD_W / 2, oy + CARD_H - 22);
+  g->drawString("desliza a la derecha", ox + CARD_W / 2, oy + CARD_H - 22);
 
   if (s_spOk) s_spReloj.pushSprite(CARD_X, CARD_Y);
 }
@@ -155,62 +164,75 @@ static void dibujarCabecera(const struct tm &t, bool valido)
   lcd.drawString("WiFi", cx + w / 2, PANEL_Y + 2 + chipH / 2);
 }
 
-// ---------------------------------------------------------------------------
-//  Lista de notificaciones
-// ---------------------------------------------------------------------------
+static int16_t maxPrimera()
+{
+  const uint8_t n = notifCantidad();
+  return n > NOTIF_VISIBLES ? n - NOTIF_VISIBLES : 0;
+}
+
+static bool enLista(int32_t x, int32_t y)
+{
+  return x >= PANEL_X && x < PANEL_X + PANEL_W && y >= LISTA_Y;
+}
+
+static bool enReloj(int32_t x, int32_t y)
+{
+  return x >= CARD_X && x < CARD_X + CARD_W && y >= CARD_Y && y < CARD_Y + CARD_H;
+}
+
 static void dibujarLista()
 {
   const Tema &tm_ = T();
-  const int16_t y0 = PANEL_Y + CAB_H + 10;
+  lgfx::LGFXBase *g = s_spListaOk ? (lgfx::LGFXBase *)&s_spLista : (lgfx::LGFXBase *)&lcd;
+  const int16_t ox = s_spListaOk ? 0 : PANEL_X;
+  const int16_t oy = s_spListaOk ? 0 : LISTA_Y;
+  const uint8_t total = notifCantidad();
 
-  uint8_t total = notifCantidad();
+  if (s_primera > maxPrimera()) s_primera = maxPrimera();
 
-  for (uint8_t i = 0; i < NOTIF_VISIBLES; i++) {
-    int16_t y = y0 + i * (NOTIF_H + NOTIF_SEP);
+  g->fillRect(ox, oy, PANEL_W, LISTA_H, tm_.fondo);
+  g->setTextSize(1.0f);
 
-    lcd.fillRoundRect(PANEL_X, y, PANEL_W, NOTIF_H, 14, tm_.superficie);
+  for (uint8_t f = 0; f < NOTIF_VISIBLES; f++) {
+    const int16_t y = oy + f * (NOTIF_H + NOTIF_SEP);
+    const uint8_t i = s_primera + f;
 
-    if (i >= total) {                       // hueco vacio
-      lcd.drawRoundRect(PANEL_X, y, PANEL_W, NOTIF_H, 14, tm_.superficie);
-      continue;
-    }
+    g->fillRoundRect(ox, y, PANEL_W, NOTIF_H, 14, tm_.superficie);
+    if (i >= total) continue;
 
     const Notificacion &n = notifObtener(i);
-    uint16_t barra = (n.tipo == NOTIF_ALERTA)  ? COL_ALERTA
-                   : (n.tipo == NOTIF_MENSAJE) ? tm_.acento
-                                               : tm_.acentoAlt;
+    const uint16_t barra = (n.tipo == NOTIF_ALERTA)  ? COL_ALERTA
+                         : (n.tipo == NOTIF_MENSAJE) ? tm_.acento
+                                                     : tm_.acentoAlt;
 
-    lcd.fillRoundRect(PANEL_X + 8, y + 10, 5, NOTIF_H - 20, 3, barra);
+    g->fillRoundRect(ox + 8, y + 10, 5, NOTIF_H - 20, 3, barra);
 
     char buf[NOTIF_TEXTO_LEN];
-    lcd.setTextSize(1.0f);
-    lcd.setTextDatum(top_left);
-
-    lcd.setFont(&fonts::Font2);
-    lcd.setTextColor(tm_.texto);
+    g->setTextDatum(top_left);
+    g->setFont(&fonts::Font2);
+    g->setTextColor(tm_.texto);
     recortar(buf, sizeof(buf), n.titulo, 20);
-    lcd.drawString(buf, PANEL_X + 22, y + 12);
+    g->drawString(buf, ox + 22, y + 12);
 
-    lcd.setTextColor(tm_.textoTenue);
+    g->setTextColor(tm_.textoTenue);
     recortar(buf, sizeof(buf), n.texto, 28);
-    lcd.drawString(buf, PANEL_X + 22, y + 38);
+    g->drawString(buf, ox + 22, y + 38);
 
-    lcd.setTextDatum(top_right);
-    lcd.setTextColor(barra);
-    lcd.drawString(n.hora, PANEL_X + PANEL_W - 12, y + 12);
+    g->setTextDatum(top_right);
+    g->setTextColor(barra);
+    g->drawString(n.hora, ox + PANEL_W - 12, y + 12);
   }
 
-  // pie: cuantas quedan fuera de la vista
-  const int16_t yPie = y0 + NOTIF_VISIBLES * (NOTIF_H + NOTIF_SEP);
-  lcd.fillRect(PANEL_X, yPie, PANEL_W, ALTO - yPie, tm_.fondo);
   if (total > NOTIF_VISIBLES) {
     char pie[24];
-    snprintf(pie, sizeof(pie), "+%u mas", total - NOTIF_VISIBLES);
-    lcd.setFont(&fonts::Font0);
-    lcd.setTextDatum(top_right);
-    lcd.setTextColor(tm_.textoTenue, tm_.fondo);
-    lcd.drawString(pie, PANEL_X + PANEL_W - 12, yPie + 2);
+    snprintf(pie, sizeof(pie), "%u-%u de %u", s_primera + 1, s_primera + NOTIF_VISIBLES, total);
+    g->setFont(&fonts::Font0);
+    g->setTextDatum(top_right);
+    g->setTextColor(tm_.textoTenue);
+    g->drawString(pie, ox + PANEL_W - 12, oy + NOTIF_VISIBLES * (NOTIF_H + NOTIF_SEP) + 2);
   }
+
+  if (s_spListaOk) s_spLista.pushSprite(PANEL_X, LISTA_Y);
 }
 
 // ---------------------------------------------------------------------------
@@ -227,6 +249,11 @@ void screenIdleEntrar()
     s_spOk = s_spReloj.createSprite(CARD_W, CARD_H);
   }
 
+  s_spLista.setColorDepth(16);
+  s_spLista.setPsram(psramFound());
+  s_spListaOk = s_spLista.createSprite(PANEL_W, LISTA_H);
+  s_primera = 0;
+
   s_ultSeg = -1; s_ultMin = -1; s_ultNotif = 0xFFFFFFFF;
 
   lcd.setBrightness(brilloNormal < BRILLO_IDLE ? brilloNormal : BRILLO_IDLE);
@@ -236,23 +263,27 @@ void screenIdleEntrar()
 void screenIdleSalir()
 {
   if (s_spOk) { s_spReloj.deleteSprite(); s_spOk = false; }
+  if (s_spListaOk) { s_spLista.deleteSprite(); s_spListaOk = false; }
   lcd.setBrightness(brilloNormal);
 }
 
 void screenIdleLoop()
 {
-  // ---- toque: dentro del reloj cambia de modo, fuera desbloquea ----
-  if (toqueNuevo) {
-    bool enReloj = (toqueX >= CARD_X && toqueX < CARD_X + CARD_W &&
-                    toqueY >= CARD_Y && toqueY < CARD_Y + CARD_H);
-    if (enReloj) {
-      relojAlternarModo();
-      Serial.printf("[idle] reloj %s\n",
-                    s_modo == RELOJ_ANALOGICO ? "analogico" : "digital");
-    } else {
-      salirDeIdle();
-      return;
+  if (toqueNuevo) s_primeraIni = s_primera;
+
+  if (toqueActivo && toquePropio && enLista(toqueX0, toqueY0)) {
+    const int32_t dy = toqueY - toqueY0;
+    if (absI(dy) > absI(toqueX - toqueX0)) {
+      const int16_t p = constrain(s_primeraIni - (int16_t)(dy / PASO_SCROLL), 0, maxPrimera());
+      if (p != s_primera) { s_primera = p; dibujarLista(); }
     }
+  }
+
+  if (deslizoDerecha()) { salirDeIdle(); return; }
+
+  if (fueToque() && enReloj(toqueX0, toqueY0)) {
+    relojAlternarModo();
+    Serial.printf("[idle] reloj %s\n", s_modo == RELOJ_ANALOGICO ? "analogico" : "digital");
   }
 
   struct tm t;
@@ -270,6 +301,7 @@ void screenIdleLoop()
 
   if (notifVersion() != s_ultNotif) {
     s_ultNotif = notifVersion();
+    s_primera = 0;
     dibujarLista();
     dibujarCabecera(t, valido);     // el chip del contador vive en la cabecera
   }
