@@ -2,6 +2,7 @@
 #include "Estaticos/cabecera.h"
 #include "Estaticos/temas.h"
 #include "Drivers/display.h"
+#include "Drivers/audio.h"
 #include "config.h"
 
 #define ZONA_Y   (CAB_ALTO + 4)
@@ -17,6 +18,7 @@ struct SliderCfg {
   int16_t (*leer)();
   void (*escribir)(int16_t);
   void (*texto)(int16_t, char *, size_t);
+  void (*alSoltar)();
 };
 
 static void fmtBrillo(int16_t v, char *b, size_t n) { snprintf(b, n, "%d%%", v); }
@@ -39,8 +41,19 @@ static void escribirBrillo(int16_t v)
 static int16_t leerReposo() { return (int16_t)(idleTimeoutMs / 1000UL); }
 static void escribirReposo(int16_t v) { idleTimeoutMs = (uint32_t)v * 1000UL; }
 
-static const SliderCfg CFG_BRILLO = { "Brillo", BRILLO_MIN_PCT, 100,          5, leerBrillo, escribirBrillo, fmtBrillo };
-static const SliderCfg CFG_REPOSO = { "Reposo", REPOSO_MIN_S,   REPOSO_MAX_S, 5, leerReposo, escribirReposo, fmtReposo };
+static void fmtVolumen(int16_t v, char *b, size_t n)
+{
+  if (v == 0) snprintf(b, n, "Silencio");
+  else        snprintf(b, n, "%d%%", v);
+}
+
+static int16_t leerVolumen() { return volumen; }
+static void escribirVolumen(int16_t v) { volumen = (uint8_t)v; }
+static void probarVolumen() { audioReproducir(SONIDO_VOLUMEN); }
+
+static const SliderCfg CFG_BRILLO  = { "Brillo",  BRILLO_MIN_PCT, 100,          5, leerBrillo,  escribirBrillo,  fmtBrillo,  nullptr };
+static const SliderCfg CFG_REPOSO  = { "Reposo",  REPOSO_MIN_S,   REPOSO_MAX_S, 5, leerReposo,  escribirReposo,  fmtReposo,  nullptr };
+static const SliderCfg CFG_VOLUMEN = { "Volumen", 0,              100,          5, leerVolumen, escribirVolumen, fmtVolumen, probarVolumen };
 
 static const SliderCfg *s_cfg = nullptr;
 static LGFX_Sprite s_sp(&lcd);
@@ -121,6 +134,8 @@ static void loopSlider()
       dibujar();
     }
   }
+
+  if (toqueSuelto && toqueY0 >= ZONA_Y && s_cfg->alSoltar) s_cfg->alSoltar();
 }
 
 static void salirSlider()
@@ -136,10 +151,21 @@ void screenReposoEntrar() { entrar(CFG_REPOSO); }
 void screenReposoLoop()   { loopSlider(); }
 void screenReposoSalir()  { salirSlider(); }
 
+void screenVolumenEntrar() { entrar(CFG_VOLUMEN); }
+void screenVolumenLoop()   { loopSlider(); }
+void screenVolumenSalir()  { salirSlider(); }
+
 const char *textoBrillo()
 {
   static char b[12];
   fmtBrillo(leerBrillo(), b, sizeof(b));
+  return b;
+}
+
+const char *textoVolumen()
+{
+  static char b[12];
+  fmtVolumen(volumen, b, sizeof(b));
   return b;
 }
 

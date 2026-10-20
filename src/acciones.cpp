@@ -87,6 +87,14 @@ bool accionEjecutar(Accion a)
       Serial.printf("[ajustes] bloqueo %s\n", modoBloqueo == BLOQUEO_RELOJ ? "reloj" : "slides");
       return false;
 
+    case ACC_BLOQUEAR_YA:
+      pedirBloqueo(BLOQUEO_RELOJ);
+      return false;
+
+    case ACC_FOTOS_YA:
+      pedirBloqueo(BLOQUEO_SLIDES);
+      return false;
+
     case ACC_AJ_REINICIAR:
       Serial.println("[ajustes] reiniciando");
       delay(100);

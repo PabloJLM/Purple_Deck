@@ -8,7 +8,7 @@
 #define SLOTS_POR_PAG      7
 #define CELDAS             9    // rejilla 3x3
 
-enum CeldaTipo : uint8_t { CELDA_VACIA = 0, CELDA_ITEM, CELDA_ATRAS, CELDA_SIG };
+enum CeldaTipo : uint8_t { CELDA_VACIA = 0, CELDA_ITEM, CELDA_ATRAS, CELDA_SIG, CELDA_ANT };
 
 // Celdas (0..8, de izquierda a derecha y de arriba a abajo) que llevan items:
 // todas menos la 6 (Atras) y la 8 (Siguiente).
@@ -82,7 +82,8 @@ static void asignarCeldas()
   if (s_paginas == 0) s_paginas = 1;
   if (s_pagina >= s_paginas) s_pagina = 0;
 
-  s_tipo[CELDA_ATRAS_POS] = CELDA_ATRAS;
+  if (!s_cfg->anterior)      s_tipo[CELDA_ATRAS_POS] = CELDA_ATRAS;
+  else if (s_paginas > 1)    s_tipo[CELDA_ATRAS_POS] = CELDA_ANT;
   if (s_paginas > 1) s_tipo[CELDA_SIG_POS] = CELDA_SIG;
 
   for (uint8_t k = 0; k < SLOTS_POR_PAG; k++) {
@@ -213,7 +214,7 @@ static void pintarNav(lgfx::LGFXBase *g, uint8_t tipo, int16_t ox, int16_t oy)
   } else {
     char pg[12];
     snprintf(pg, sizeof(pg), "%u/%u", (unsigned)(s_pagina + 1), (unsigned)s_paginas);
-    g->drawString("Sig >", cx, cy - 12);
+    g->drawString(tipo == CELDA_ANT ? "< Ant" : "Sig >", cx, cy - 12);
     g->setFont(&fonts::Font2);
     g->setTextColor(t.texto);
     g->drawString(pg, cx, cy + 16);
@@ -294,8 +295,9 @@ void rejillaLoop()
           irAPantalla(s_cfg->atras);
           return;
 
+        case CELDA_ANT:
         case CELDA_SIG:
-          s_pagina = (uint8_t)((s_pagina + 1) % s_paginas);
+          s_pagina = (uint8_t)((s_pagina + (s_tipo[c] == CELDA_SIG ? 1 : s_paginas - 1)) % s_paginas);
           asignarCeldas();
           s_activo = -1;
           rejillaRedibujar(false);        // misma rejilla: basta repintar las celdas

@@ -50,6 +50,7 @@ struct RejillaCfg {
   uint8_t     cols;       // columnas (modo normal); la paginada siempre usa 3
   bool        paginada;   // true = 3x3 con Atras / Siguiente (ver arriba)
   Screen      atras;      // a donde lleva el boton Atras
+  bool        anterior = false;  // true: abajo-izquierda es 'Ant' (pagina anterior) en vez de Atras
 };
 
 void rejillaEntrar(const RejillaCfg &c);   // reserva sprite y dibuja

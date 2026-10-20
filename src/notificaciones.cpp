@@ -1,4 +1,5 @@
 #include "Drivers/notificaciones.h"
+#include "Drivers/audio.h"
 
 static Notificacion s_lista[NOTIF_MAX];
 static uint8_t      s_cantidad = 0;
@@ -25,6 +26,7 @@ void notifAgregar(const char *titulo, const char *texto,
 
   if (s_cantidad < NOTIF_MAX) s_cantidad++;
   s_version++;
+  audioNotificacion(tipo);
 }
 
 void notifLimpiar()

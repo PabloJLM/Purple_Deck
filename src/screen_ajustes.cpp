@@ -29,6 +29,7 @@ static const char *subBloqueo()
 static const Item ITEMS[] = {
   IT_PANT_DIN("Brillo",  nullptr, SCREEN_BRILLO,  textoBrillo),
   IT_PANT_DIN("Reposo",  nullptr, SCREEN_REPOSO,  textoReposo),
+  IT_PANT_DIN("Volumen", nullptr, SCREEN_VOLUMEN, textoVolumen),
   IT_ACC_DIN("Reloj",    nullptr, ACC_AJ_RELOJ,   subReloj),
   IT_PANT_DIN("Tema",    nullptr, SCREEN_TEMAS,   subTema),
   IT_ACC_DIN("Bloqueo",  nullptr, ACC_AJ_BLOQUEO, subBloqueo),

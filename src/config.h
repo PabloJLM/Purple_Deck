@@ -27,6 +27,22 @@ enum BloqueoModo : uint8_t { BLOQUEO_RELOJ = 0, BLOQUEO_SLIDES = 1 };
 #define SD_CLK  39
 #define SD_MISO 38
 
+#define AUDIO_LRCK 35
+#define AUDIO_BCLK 36
+#define AUDIO_DOUT 37
+#define AUDIO_TASA 22050
+#define VOLUMEN_INICIAL 60
+#define SONIDO_INFO    "/sonidos/info.wav"
+#define SONIDO_MENSAJE "/sonidos/mensaje.wav"
+#define SONIDO_ALERTA  "/sonidos/alerta.wav"
+#define SONIDO_VOLUMEN "/sonidos/volumen.wav"
+
+#define POMO_FOCO_MIN  25
+#define POMO_CORTO_MIN 5
+#define POMO_LARGO_MIN 15
+#define POMO_CICLOS    4
+#define NUM_ALARMAS    4
+
 #define TZ_LOCAL "CST6"
 #define NTP_1 "pool.ntp.org"
 #define NTP_2 "time.nist.gov"
@@ -45,7 +61,10 @@ enum Screen : uint8_t {
   SCREEN_AJUSTES,
   SCREEN_BRILLO,
   SCREEN_REPOSO,
+  SCREEN_VOLUMEN,
   SCREEN_TEMAS,
+  SCREEN_POMODORO,
+  SCREEN_RELOJ,
   SCREEN_IDLE,
   SCREEN_SLIDES
 };
@@ -53,6 +72,7 @@ enum Screen : uint8_t {
 extern Screen pantallaActual;
 void irAPantalla(Screen s);
 void salirDeIdle();
+void pedirBloqueo(uint8_t modo);
 
 // toquePropio: el gesto empezo en la pantalla actual (no viene de la anterior)
 extern bool    toqueNuevo;
@@ -78,5 +98,6 @@ inline bool deslizoDerecha()
 extern uint32_t idleTimeoutMs;
 extern uint8_t  brilloNormal;
 extern uint8_t  modoBloqueo;
+extern uint8_t  volumen;
 
 #endif  // PURPLE_DECK_CONFIG_H_
