@@ -12,3 +12,5 @@ build/
 *.elf
 __pycache__/
 .pio/
+
+imagenes_originales

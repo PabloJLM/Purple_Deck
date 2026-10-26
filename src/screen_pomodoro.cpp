@@ -26,8 +26,6 @@
 #define AJUSTE_W    56
 #define PUNTOS_Y    232
 
-static LGFX_Sprite s_sp(&lcd);
-static bool     s_spOk  = false;
 static uint32_t s_firma = 0xFFFFFFFF;
 
 static uint32_t firma()
@@ -46,11 +44,11 @@ static const char *nombreFase()
   }
 }
 
-static void dibujar()
+static void dibujar(bool empujar = true)
 {
   const Tema &t = T();
-  lgfx::LGFXBase *g = s_spOk ? (lgfx::LGFXBase *)&s_sp : (lgfx::LGFXBase *)&lcd;
-  const int16_t oy = s_spOk ? 0 : ZONA_Y;
+  lgfx::LGFXBase *g = pantalla();
+  const int16_t oy = ZONA_Y;
   const uint16_t color = (pomoFase() == POMO_FOCO) ? t.acento : t.acentoAlt;
   char b[24];
 
@@ -104,19 +102,16 @@ static void dibujar()
     else            g->drawCircle(px, oy + PUNTOS_Y, 7, t.borde);
   }
 
-  if (s_spOk) s_sp.pushSprite(0, ZONA_Y);
+  if (empujar) pantallaEmpujar(0, ZONA_Y, ANCHO, ZONA_H);
 }
 
 void screenPomodoroEntrar()
 {
-  s_sp.setColorDepth(16);
-  s_sp.setPsram(psramFound());
-  s_spOk = s_sp.createSprite(ANCHO, ZONA_H);
-
-  lcd.fillScreen(T().fondo);
+  pantalla()->fillScreen(T().fondo);
   cabeceraDibujar("Pomodoro", "< Menu");
   s_firma = firma();
-  dibujar();
+  dibujar(false);
+  pantallaEmpujarTodo();
 }
 
 void screenPomodoroLoop()
@@ -135,7 +130,4 @@ void screenPomodoroLoop()
   if (f != s_firma) { s_firma = f; dibujar(); }
 }
 
-void screenPomodoroSalir()
-{
-  if (s_spOk) { s_sp.deleteSprite(); s_spOk = false; }
-}
+void screenPomodoroSalir() {}

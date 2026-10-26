@@ -40,6 +40,7 @@ static const Item ITEMS[] = {
   IT_PANT_DIN("Tema",    nullptr, SCREEN_TEMAS,   subTema),
   IT_ACC_DIN("Bloqueo",  nullptr, ACC_AJ_BLOQUEO, subBloqueo),
   IT_PANT_DIN("Credenciales", nullptr, SCREEN_CREDENCIALES, subRed),
+  IT_PANT("Sistema", "Memoria y espacio", nullptr, SCREEN_SISTEMA),
   IT_ACC("Reiniciar", "Reinicia el deck", nullptr, ACC_AJ_REINICIAR),
 };
 

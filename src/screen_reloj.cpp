@@ -33,8 +33,6 @@ static const char *TAB_NOMBRE[TABS] = { "Hora", "Alarmas", "Crono", "Temp" };
 #define MUESTRAS 100
 #define MUESTRA_MS 2000UL
 
-static LGFX_Sprite s_sp(&lcd);
-static bool     s_spOk = false;
 static Tab      s_tab = TAB_HORA;
 static bool     s_sucio = true;
 static int      s_segPrev = -1;
@@ -47,17 +45,16 @@ static float    s_muestras[MUESTRAS];
 static uint8_t  s_nMuestras = 0;
 static uint32_t s_tMuestra = 0;
 
-static lgfx::LGFXBase *destino() { return s_spOk ? (lgfx::LGFXBase *)&s_sp : (lgfx::LGFXBase *)&lcd; }
-static int16_t origenY() { return s_spOk ? 0 : CY; }
-
-static void dibujarTabs()
+static void dibujarTabs(bool empujar = true)
 {
   const Tema &t = T();
+  lgfx::LGFXBase *g = pantalla();
   for (uint8_t i = 0; i < TABS; i++) {
     const bool act = (i == s_tab);
-    botonDibujar(&lcd, i * TAB_W + 3, TAB_Y, TAB_W - 6, TAB_H, TAB_NOMBRE[i],
+    botonDibujar(g, i * TAB_W + 3, TAB_Y, TAB_W - 6, TAB_H, TAB_NOMBRE[i],
                  act ? t.acento : t.superficie, act ? t.textoSobreAcento : t.texto, &fonts::Font4);
   }
+  if (empujar) pantallaEmpujar(0, TAB_Y, ANCHO, TAB_H);
 }
 
 static void dibujarHora(lgfx::LGFXBase *g, int16_t oy)
@@ -186,11 +183,11 @@ static void dibujarTemp(lgfx::LGFXBase *g, int16_t oy)
   g->drawString("Sensor interno del chip: marca mas que el ambiente", ANCHO / 2, oy + 196);
 }
 
-static void dibujarContenido()
+static void dibujarContenido(bool empujar = true)
 {
   const Tema &t = T();
-  lgfx::LGFXBase *g = destino();
-  const int16_t oy = origenY();
+  lgfx::LGFXBase *g = pantalla();
+  const int16_t oy = CY;
 
   g->fillRect(0, oy, ANCHO, CH, t.fondo);
   switch (s_tab) {
@@ -199,7 +196,7 @@ static void dibujarContenido()
     case TAB_CRONO:   dibujarCrono(g, oy);   break;
     case TAB_TEMP:    dibujarTemp(g, oy);    break;
   }
-  if (s_spOk) s_sp.pushSprite(0, CY);
+  if (empujar) pantallaEmpujar(0, CY, ANCHO, CH);
 }
 
 static void guardarSiHaceFalta()
@@ -259,18 +256,16 @@ static void entradaCrono()
 
 void screenRelojEntrar()
 {
-  s_sp.setColorDepth(16);
-  s_sp.setPsram(psramFound());
-  s_spOk = s_sp.createSprite(ANCHO, CH);
-
-  s_sucio = true;
+  s_sucio = false;
   s_segPrev = -1;
-  s_tRefresco = 0;
+  s_tRefresco = millis();
   s_tMuestra = 0;
 
-  lcd.fillScreen(T().fondo);
+  pantalla()->fillScreen(T().fondo);
   cabeceraDibujar("Reloj", "< Menu");
-  dibujarTabs();
+  dibujarTabs(false);
+  dibujarContenido(false);
+  pantallaEmpujarTodo();
 }
 
 void screenRelojLoop()
@@ -320,5 +315,4 @@ void screenRelojLoop()
 void screenRelojSalir()
 {
   guardarSiHaceFalta();
-  if (s_spOk) { s_sp.deleteSprite(); s_spOk = false; }
 }

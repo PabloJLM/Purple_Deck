@@ -29,7 +29,7 @@ public:
   {
     {
       auto cfg = _bus_instance.config();
-      cfg.freq_write = 40000000;
+      cfg.freq_write = 20000000;
       cfg.pin_wr = 47;
       cfg.pin_rd = -1;
       cfg.pin_rs = 0;
@@ -109,6 +109,11 @@ public:
 extern LGFX lcd;
 
 // Arranca panel, rotacion, brillo y LittleFS. Devuelve true si LittleFS monto.
+lgfx::LGFXBase *pantalla();
+bool pantallaDoble();
+void pantallaEmpujar(int16_t x, int16_t y, int16_t w, int16_t h);
+void pantallaEmpujarTodo();
+
 bool displayIniciar();
 bool fsDisponible();
 

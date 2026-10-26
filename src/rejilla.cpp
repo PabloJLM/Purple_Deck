@@ -253,6 +253,16 @@ static int8_t celdaEn(int32_t x, int32_t y)
 void rejillaRedibujar(bool limpiar)
 {
   if (!s_cfg) return;
+
+  if (pantallaDoble()) {
+    lgfx::LGFXBase *g = pantalla();
+    g->fillRect(0, 0, ANCHO, ALTO, T().fondo);
+    for (uint8_t c = 0; c < s_ncel; c++)
+      if (s_tipo[c] != CELDA_VACIA) pintarCelda(g, c, false, s_x[c], s_y[c]);
+    pantallaEmpujarTodo();
+    return;
+  }
+
   if (limpiar) lcd.fillScreen(T().fondo);
   for (uint8_t c = 0; c < s_ncel; c++) dibujar(c, false);
 }

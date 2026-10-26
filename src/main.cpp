@@ -17,6 +17,8 @@
 #include "Pantallas/screen_slider.h"
 #include "Pantallas/screen_temas.h"
 #include "Pantallas/screen_credenciales.h"
+#include "Pantallas/screen_sistema.h"
+#include "Drivers/terminal.h"
 #include "Pantallas/screen_pomodoro.h"
 #include "Pantallas/screen_reloj.h"
 #include "Pantallas/screen_idle.h"
@@ -54,6 +56,7 @@ static void salirDe(Screen s)
     case SCREEN_VOLUMEN:    screenVolumenSalir();    break;
     case SCREEN_TEMAS:      screenTemasSalir();      break;
     case SCREEN_CREDENCIALES: screenCredencialesSalir(); break;
+    case SCREEN_SISTEMA:     screenSistemaSalir();     break;
     case SCREEN_POMODORO:   screenPomodoroSalir();   break;
     case SCREEN_RELOJ:      screenRelojSalir();      break;
     case SCREEN_IDLE:       screenIdleSalir();       break;
@@ -77,6 +80,7 @@ static void entrarEn(Screen s)
     case SCREEN_VOLUMEN:    screenVolumenEntrar();    break;
     case SCREEN_TEMAS:      screenTemasEntrar();      break;
     case SCREEN_CREDENCIALES: screenCredencialesEntrar(); break;
+    case SCREEN_SISTEMA:     screenSistemaEntrar();     break;
     case SCREEN_POMODORO:   screenPomodoroEntrar();   break;
     case SCREEN_RELOJ:      screenRelojEntrar();      break;
     case SCREEN_IDLE:       screenIdleEntrar();       break;
@@ -100,6 +104,7 @@ static void loopDe(Screen s)
     case SCREEN_VOLUMEN:    screenVolumenLoop();    break;
     case SCREEN_TEMAS:      screenTemasLoop();      break;
     case SCREEN_CREDENCIALES: screenCredencialesLoop(); break;
+    case SCREEN_SISTEMA:     screenSistemaLoop();     break;
     case SCREEN_POMODORO:   screenPomodoroLoop();   break;
     case SCREEN_RELOJ:      screenRelojLoop();      break;
     case SCREEN_IDLE:       screenIdleLoop();       break;
@@ -156,15 +161,6 @@ static bool mantenerDespierto()
          (pantallaActual == SCREEN_RELOJ && cronoCorriendo());
 }
 
-// Notificaciones de ejemplo mientras conectamos la PC
-static void notificacionesDemo()
-{
-  notifAgregar("Tesla Lab",  "Build del firmware terminado", "09:41", NOTIF_ALERTA);
-  notifAgregar("Pablo",      "Decirle gay a daniel",        "10:05", NOTIF_MENSAJE);
-  notifAgregar("Bateria",    "aaaaaaaa",  "10:12", NOTIF_ALERTA);
-  notifAgregar("Calendario", "Reunion con Dr. Rodas 13:00",  "10:30", NOTIF_INFO);
-}
-
 void setup()
 {
   Serial.begin(115200);
@@ -179,7 +175,7 @@ void setup()
 
   tiempoIniciar();
   temporizadoresIniciar();
-  notificacionesDemo();
+  terminalIniciar();
   audioIniciar();
 
   s_ultimaActividad = millis();
@@ -189,6 +185,7 @@ void setup()
 void loop()
 {
   tiempoLoop();
+  terminalLoop();
   leerToque();
 
   if (toqueNuevo) alarmaSilenciar();

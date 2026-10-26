@@ -23,33 +23,36 @@ static int16_t envolver(int16_t g)
 static void dibujarArea()
 {
   const Tema &t = T();
+  lgfx::LGFXBase *g = pantalla();
   const int16_t cx = ANCHO / 2, cy = AREA_Y + AREA_H / 2;
 
-  lcd.fillRoundRect(GAP, AREA_Y, ANCHO - 2 * GAP, AREA_H, RAD, t.superficie);
-  lcd.drawRoundRect(GAP, AREA_Y, ANCHO - 2 * GAP, AREA_H, RAD, t.borde);
-  lcd.drawCircle(cx, cy, 60, t.borde);
-  lcd.drawFastHLine(cx - 40, cy, 80, t.borde);
-  lcd.drawFastVLine(cx, cy - 40, 80, t.borde);
+  g->fillRoundRect(GAP, AREA_Y, ANCHO - 2 * GAP, AREA_H, RAD, t.superficie);
+  g->drawRoundRect(GAP, AREA_Y, ANCHO - 2 * GAP, AREA_H, RAD, t.borde);
+  g->drawCircle(cx, cy, 60, t.borde);
+  g->drawFastHLine(cx - 40, cy, 80, t.borde);
+  g->drawFastVLine(cx, cy - 40, 80, t.borde);
 
-  lcd.setTextSize(1.0f);
-  lcd.setFont(&fonts::Font2);
-  lcd.setTextDatum(top_center);
-  lcd.setTextColor(t.textoTenue);
-  lcd.drawString("Arrastra para rotar la pieza", cx, AREA_Y + 10);
+  g->setTextSize(1.0f);
+  g->setFont(&fonts::Font2);
+  g->setTextDatum(top_center);
+  g->setTextColor(t.textoTenue);
+  g->drawString("Arrastra para rotar la pieza", cx, AREA_Y + 10);
 }
 
-static void dibujarGiro()
+static void dibujarGiro(bool empujar = true)
 {
   const Tema &t = T();
+  lgfx::LGFXBase *g = pantalla();
   char b[32];
   snprintf(b, sizeof(b), "H %+d   V %+d", s_giroH, s_giroV);
-  lcd.setTextSize(1.0f);
-  lcd.setFont(&fonts::Font4);
-  lcd.setTextDatum(bottom_center);
-  lcd.setTextColor(t.acento, t.superficie);
-  lcd.setTextPadding(260);
-  lcd.drawString(b, ANCHO / 2, AREA_Y + AREA_H - 10);
-  lcd.setTextPadding(0);
+  g->setTextSize(1.0f);
+  g->setFont(&fonts::Font4);
+  g->setTextDatum(bottom_center);
+  g->setTextColor(t.acento, t.superficie);
+  g->setTextPadding(260);
+  g->drawString(b, ANCHO / 2, AREA_Y + AREA_H - 10);
+  g->setTextPadding(0);
+  if (empujar) pantallaEmpujar(ANCHO / 2 - 130, AREA_Y + AREA_H - 40, 260, 34);
 }
 
 static bool paso(Accion a, int16_t &giro, int16_t delta)
@@ -62,10 +65,11 @@ static bool paso(Accion a, int16_t &giro, int16_t delta)
 void screenSwRotarEntrar()
 {
   s_giroH = s_giroV = 0;
-  lcd.fillScreen(T().fondo);
+  pantalla()->fillScreen(T().fondo);
   cabeceraDibujar("Rotar pieza", "< Salir");
   dibujarArea();
-  dibujarGiro();
+  dibujarGiro(false);
+  pantallaEmpujarTodo();
 }
 
 void screenSwRotarLoop()

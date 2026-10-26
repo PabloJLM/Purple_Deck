@@ -11,8 +11,6 @@
 #define PASO_PX  (FILA_H / 2)
 #define FILA_W   (ANCHO - 2 * GAP - 12)
 
-static LGFX_Sprite s_sp(&lcd);
-static bool    s_spOk = false;
 static int16_t s_primera = 0;
 static int16_t s_primeraIni = 0;
 
@@ -21,11 +19,11 @@ static int16_t maxPrimera()
   return NUM_TEMAS > VISIBLES ? NUM_TEMAS - VISIBLES : 0;
 }
 
-static void dibujarLista()
+static void dibujarLista(bool empujar = true)
 {
   const Tema &t = T();
-  lgfx::LGFXBase *g = s_spOk ? (lgfx::LGFXBase *)&s_sp : (lgfx::LGFXBase *)&lcd;
-  const int16_t oy = s_spOk ? 0 : LISTA_Y;
+  lgfx::LGFXBase *g = pantalla();
+  const int16_t oy = LISTA_Y;
 
   g->fillRect(0, oy, ANCHO, LISTA_H, t.fondo);
   g->setTextSize(1.0f);
@@ -68,23 +66,20 @@ static void dibujarLista()
     g->fillRect(ANCHO - 8, barY, 4, barH, t.acento);
   }
 
-  if (s_spOk) s_sp.pushSprite(0, LISTA_Y);
+  if (empujar) pantallaEmpujar(0, LISTA_Y, ANCHO, LISTA_H);
 }
 
 static void dibujarTodo()
 {
-  lcd.fillScreen(T().fondo);
+  pantalla()->fillScreen(T().fondo);
   cabeceraDibujar("Tema", "< Ajustes");
-  dibujarLista();
+  dibujarLista(false);
+  pantallaEmpujarTodo();
 }
 
 void screenTemasEntrar()
 {
   s_primera = temaIndice() < maxPrimera() ? temaIndice() : maxPrimera();
-
-  s_sp.setColorDepth(16);
-  s_sp.setPsram(psramFound());
-  s_spOk = s_sp.createSprite(ANCHO, LISTA_H);
 
   dibujarTodo();
 }
@@ -110,7 +105,4 @@ void screenTemasLoop()
   }
 }
 
-void screenTemasSalir()
-{
-  if (s_spOk) { s_sp.deleteSprite(); s_spOk = false; }
-}
+void screenTemasSalir() {}

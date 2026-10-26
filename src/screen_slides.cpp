@@ -74,6 +74,8 @@ void slidesIniciar() { slidesEscanear(); }
 
 uint8_t slidesCantidad() { return s_n; }
 
+bool sdMontada() { return montarSD(); }
+
 const char *slidesOrigen()
 {
   if (!s_fs) return nullptr;
@@ -84,10 +86,12 @@ static void mostrar()
 {
   const char *r = s_rutas[s_idx];
   lcd.fillScreen(TFT_BLACK);
-  if (termina(r, ".png"))
-    lcd.drawPngFile(*s_fs, r, 0, 0, ANCHO, ALTO, 0, 0, 0.0f, 0.0f, datum_t::middle_center);
-  else
-    lcd.drawJpgFile(*s_fs, r, 0, 0, ANCHO, ALTO, 0, 0, 0.0f, 0.0f, datum_t::middle_center);
+  const bool ok = termina(r, ".png")
+    ? lcd.drawPngFile(*s_fs, r, 0, 0, ANCHO, ALTO, 0, 0, 0.0f, 0.0f, datum_t::middle_center)
+    : lcd.drawJpgFile(*s_fs, r, 0, 0, ANCHO, ALTO, 0, 0, 0.0f, 0.0f, datum_t::middle_center);
+  Serial.printf("[slides] %u/%u %s -> %s (heap libre %u, psram libre %u)\n",
+                (unsigned)(s_idx + 1), (unsigned)s_n, r, ok ? "ok" : "FALLO",
+                (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getFreePsram());
 }
 
 void screenSlidesEntrar()

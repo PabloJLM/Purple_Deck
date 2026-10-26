@@ -56,15 +56,13 @@ static const SliderCfg CFG_REPOSO  = { "Reposo",  REPOSO_MIN_S,   REPOSO_MAX_S, 
 static const SliderCfg CFG_VOLUMEN = { "Volumen", 0,              100,          5, leerVolumen, escribirVolumen, fmtVolumen, probarVolumen };
 
 static const SliderCfg *s_cfg = nullptr;
-static LGFX_Sprite s_sp(&lcd);
-static bool    s_spOk  = false;
 static int16_t s_valor = 0;
 
-static void dibujar()
+static void dibujar(bool empujar = true)
 {
   const Tema &t = T();
-  lgfx::LGFXBase *g = s_spOk ? (lgfx::LGFXBase *)&s_sp : (lgfx::LGFXBase *)&lcd;
-  const int16_t oy = s_spOk ? 0 : ZONA_Y;
+  lgfx::LGFXBase *g = pantalla();
+  const int16_t oy = ZONA_Y;
   char txt[24];
 
   g->fillRect(0, oy, ANCHO, ZONA_H, t.fondo);
@@ -95,7 +93,7 @@ static void dibujar()
   g->setTextDatum(top_right);
   g->drawString(txt, PISTA_X0 + PISTA_W, py + PERILLA + 10);
 
-  if (s_spOk) s_sp.pushSprite(0, ZONA_Y);
+  if (empujar) pantallaEmpujar(0, ZONA_Y, ANCHO, ZONA_H);
 }
 
 static int16_t valorEn(int32_t x)
@@ -113,13 +111,10 @@ static void entrar(const SliderCfg &c)
   s_cfg   = &c;
   s_valor = constrain(c.leer(), c.min, c.max);
 
-  s_sp.setColorDepth(16);
-  s_sp.setPsram(psramFound());
-  s_spOk = s_sp.createSprite(ANCHO, ZONA_H);
-
-  lcd.fillScreen(T().fondo);
+  pantalla()->fillScreen(T().fondo);
   cabeceraDibujar(c.titulo, "< Ajustes");
-  dibujar();
+  dibujar(false);
+  pantallaEmpujarTodo();
 }
 
 static void loopSlider()
@@ -138,10 +133,7 @@ static void loopSlider()
   if (toqueSuelto && toqueY0 >= ZONA_Y && s_cfg->alSoltar) s_cfg->alSoltar();
 }
 
-static void salirSlider()
-{
-  if (s_spOk) { s_sp.deleteSprite(); s_spOk = false; }
-}
+static void salirSlider() {}
 
 void screenBrilloEntrar() { entrar(CFG_BRILLO); }
 void screenBrilloLoop()   { loopSlider(); }

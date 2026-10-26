@@ -11,16 +11,17 @@
 void cabeceraDibujar(const char *titulo, const char *atras)
 {
   const Tema &t = T();
-  lcd.fillRect(0, 0, ANCHO, CAB_ALTO, t.fondo);
-  lcd.setTextSize(1.0f);
-  lcd.fillRoundRect(BTN_X, BTN_Y, BTN_W, BTN_H, RAD, t.superficie);
-  lcd.drawRoundRect(BTN_X, BTN_Y, BTN_W, BTN_H, RAD, t.borde);
-  lcd.setFont(&fonts::Font4);
-  lcd.setTextDatum(middle_center);
-  lcd.setTextColor(t.acento);
-  lcd.drawString(atras, BTN_X + BTN_W / 2, BTN_Y + BTN_H / 2);
-  lcd.setTextColor(t.texto);
-  lcd.drawString(titulo, (BTN_X + BTN_W + ANCHO) / 2, CAB_ALTO / 2);
+  lgfx::LGFXBase *g = pantalla();
+  g->fillRect(0, 0, ANCHO, CAB_ALTO, t.fondo);
+  g->setTextSize(1.0f);
+  g->fillRoundRect(BTN_X, BTN_Y, BTN_W, BTN_H, RAD, t.superficie);
+  g->drawRoundRect(BTN_X, BTN_Y, BTN_W, BTN_H, RAD, t.borde);
+  g->setFont(&fonts::Font4);
+  g->setTextDatum(middle_center);
+  g->setTextColor(t.acento);
+  g->drawString(atras, BTN_X + BTN_W / 2, BTN_Y + BTN_H / 2);
+  g->setTextColor(t.texto);
+  g->drawString(titulo, (BTN_X + BTN_W + ANCHO) / 2, CAB_ALTO / 2);
 }
 
 bool cabeceraAtras()

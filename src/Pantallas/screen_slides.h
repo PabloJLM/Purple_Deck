@@ -5,6 +5,7 @@
 void slidesIniciar();
 void slidesEscanear();
 uint8_t slidesCantidad();
+bool    sdMontada();
 const char *slidesOrigen();
 
 void screenSlidesEntrar();
