@@ -18,6 +18,7 @@
 #include "Pantallas/screen_temas.h"
 #include "Pantallas/screen_credenciales.h"
 #include "Pantallas/screen_sistema.h"
+#include "Pantallas/screen_ftp.h"
 #include "Drivers/terminal.h"
 #include "Pantallas/screen_pomodoro.h"
 #include "Pantallas/screen_reloj.h"
@@ -57,6 +58,7 @@ static void salirDe(Screen s)
     case SCREEN_TEMAS:      screenTemasSalir();      break;
     case SCREEN_CREDENCIALES: screenCredencialesSalir(); break;
     case SCREEN_SISTEMA:     screenSistemaSalir();     break;
+    case SCREEN_FTP:        screenFtpSalir();        break;
     case SCREEN_POMODORO:   screenPomodoroSalir();   break;
     case SCREEN_RELOJ:      screenRelojSalir();      break;
     case SCREEN_IDLE:       screenIdleSalir();       break;
@@ -81,6 +83,7 @@ static void entrarEn(Screen s)
     case SCREEN_TEMAS:      screenTemasEntrar();      break;
     case SCREEN_CREDENCIALES: screenCredencialesEntrar(); break;
     case SCREEN_SISTEMA:     screenSistemaEntrar();     break;
+    case SCREEN_FTP:        screenFtpEntrar();        break;
     case SCREEN_POMODORO:   screenPomodoroEntrar();   break;
     case SCREEN_RELOJ:      screenRelojEntrar();      break;
     case SCREEN_IDLE:       screenIdleEntrar();       break;
@@ -105,6 +108,7 @@ static void loopDe(Screen s)
     case SCREEN_TEMAS:      screenTemasLoop();      break;
     case SCREEN_CREDENCIALES: screenCredencialesLoop(); break;
     case SCREEN_SISTEMA:     screenSistemaLoop();     break;
+    case SCREEN_FTP:        screenFtpLoop();         break;
     case SCREEN_POMODORO:   screenPomodoroLoop();   break;
     case SCREEN_RELOJ:      screenRelojLoop();      break;
     case SCREEN_IDLE:       screenIdleLoop();       break;
@@ -158,7 +162,8 @@ static bool bloqueado()
 static bool mantenerDespierto()
 {
   return (pantallaActual == SCREEN_POMODORO && pomoCorriendo()) ||
-         (pantallaActual == SCREEN_RELOJ && cronoCorriendo());
+         (pantallaActual == SCREEN_RELOJ && cronoCorriendo()) ||
+         (pantallaActual == SCREEN_FTP && ftpActivo());
 }
 
 void setup()

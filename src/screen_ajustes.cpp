@@ -41,6 +41,7 @@ static const Item ITEMS[] = {
   IT_ACC_DIN("Bloqueo",  nullptr, ACC_AJ_BLOQUEO, subBloqueo),
   IT_PANT_DIN("Credenciales", nullptr, SCREEN_CREDENCIALES, subRed),
   IT_PANT("Sistema", "Memoria y espacio", nullptr, SCREEN_SISTEMA),
+  IT_PANT("Servidor FTP", "Copiar archivos por WiFi", nullptr, SCREEN_FTP),
   IT_ACC("Reiniciar", "Reinicia el deck", nullptr, ACC_AJ_REINICIAR),
 };
 

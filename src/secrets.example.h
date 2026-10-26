@@ -5,4 +5,7 @@
 #define WIFI_SSID  "SSID"
 #define WIFI_PASS  "PASSWORD"
 
+#define FTP_USER   "pablo"
+#define FTP_PASS   "purpledeck"
+
 #endif  // PURPLE_DECK_SECRETS_EXAMPLE_H_
