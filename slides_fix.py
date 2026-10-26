@@ -1,13 +1,3 @@
-"""
-reencode_slides.py - vuelve a guardar fotos como JPEG baseline (o PNG normal)
-para que el decodificador del deck las pueda leer.
-
-Uso:
-    python reencode_slides.py "C:\\ruta\\a\\slides"
-
-Deja los originales intactos y pone las copias convertidas en una
-subcarpeta "convertidas" dentro de esa misma carpeta.
-"""
 import os
 import sys
 

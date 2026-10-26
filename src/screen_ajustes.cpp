@@ -5,6 +5,7 @@
 #include "Estaticos/rejilla.h"
 #include "Estaticos/temas.h"
 #include "Drivers/acciones.h"
+#include "Drivers/teclado.h"
 #include "config.h"
 #include "secrets.h"
 
@@ -21,6 +22,11 @@ static const char *subTema()
 static const char *subRed()
 {
   return WIFI_SSID;
+}
+
+static const char *subBluetooth()
+{
+  return tecladoConectado() ? "Conectado" : "Sin conexion";
 }
 
 static const char *subBloqueo()
@@ -42,6 +48,7 @@ static const Item ITEMS[] = {
   IT_PANT_DIN("Credenciales", nullptr, SCREEN_CREDENCIALES, subRed),
   IT_PANT("Sistema", "Memoria y espacio", nullptr, SCREEN_SISTEMA),
   IT_PANT("Servidor FTP", "Copiar archivos por WiFi", nullptr, SCREEN_FTP),
+  IT_PANT_DIN("Bluetooth", nullptr, SCREEN_BLUETOOTH, subBluetooth),
   IT_ACC("Reiniciar", "Reinicia el deck", nullptr, ACC_AJ_REINICIAR),
 };
 

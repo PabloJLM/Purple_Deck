@@ -19,4 +19,11 @@ void tecladoMedia(MediaTecla m);
 void tecladoAtajo(std::initializer_list<uint8_t> teclas);
 void tecladoAbrirApp(const char *nombre);
 
+// --- Bluetooth: estado y re-emparejado -------------------------------------
+#define BLE_NOMBRE "Purple Deck"
+
+bool        tecladoEmparejado();     // true si hay algun emparejamiento guardado
+const char *tecladoDireccion();      // MAC del dispositivo conectado, o nullptr
+void        tecladoReemparejar();    // desconecta, borra emparejamientos y vuelve a anunciarse
+
 #endif  // PURPLE_DECK_DRIVERS_TECLADO_H_

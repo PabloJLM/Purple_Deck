@@ -64,6 +64,29 @@ def mejor_texto_sobre(rgb):
     return oscuro if contraste(rgb, oscuro) >= contraste(rgb, claro) else claro
 
 
+def asegurar_contraste(fg, bg, minimo=4.5, pasos=40):
+    """Empuja la luminosidad de fg hacia el extremo (blanco o negro) mas lejano
+    de bg hasta que el contraste con bg alcance 'minimo', sin cambiar su tono
+    ni su saturacion. Si no se alcanza, devuelve lo mas cerca que se pudo."""
+    if contraste(fg, bg) >= minimo:
+        return fg
+
+    h, s, l = rgb_a_hsl(fg)
+    l_bg = rgb_a_hsl(bg)[2]
+    direccion = 1 if l_bg < 50 else -1  # fondo oscuro -> aclarar; fondo claro -> oscurecer
+
+    mejor, mejor_c = fg, contraste(fg, bg)
+    for i in range(1, pasos + 1):
+        l_cand = max(0.0, min(100.0, l + direccion * (100.0 / pasos) * i))
+        cand = hsl_a_rgb(h, s, l_cand)
+        c = contraste(cand, bg)
+        if c > mejor_c:
+            mejor, mejor_c = cand, c
+        if c >= minimo:
+            return cand
+    return mejor
+
+
 # ---------- catálogo de roles ----------
 
 def _sup_delta(ctx, mult):
@@ -129,6 +152,18 @@ def analizar_semillas(colores):
             "acentoAlt": acento_alt, "texto": texto}
 
 
+# Para cada rol de texto, contra que rol de fondo debe mantener contraste
+# minimo, y cual es el piso aceptable (4.5 = texto normal AA, 3.0 = texto
+# secundario / muted, igual al minimo AA para texto grande).
+CONTRASTE_MINIMO = {
+    "text":          ("background", 4.5),
+    "textMuted":     ("background", 3.0),
+    "textOnAccent":  ("accent",     4.5),
+    "textOnPrimary": ("primary",    4.5),
+    "link":          ("background", 3.0),
+}
+
+
 def derivar_tema(semillas, roles_salida, nombre="Custom",
                  modo_claro=False, superficie_delta=7.0):
     base = analizar_semillas(semillas)
@@ -136,10 +171,7 @@ def derivar_tema(semillas, roles_salida, nombre="Custom",
     fondo, texto = base["fondo"], base["texto"]
     if modo_claro:
         fondo, texto = texto, fondo
-    if contraste(fondo, texto) < 4.5:
-        h, s, l = rgb_a_hsl(texto)
-        delta = 10 if not modo_claro else -10
-        texto = hsl_a_rgb(h, s, max(2, min(98, l + delta)))
+    texto = asegurar_contraste(texto, fondo, 4.5)
 
     ctx = {
         "fondo": fondo, "texto": texto,
@@ -162,15 +194,49 @@ def derivar_tema(semillas, roles_salida, nombre="Custom",
         resultado[rol] = rgb
         ctx["roles"][rol] = rgb
 
+    # Segunda pasada: todo rol que se dibuja como texto sobre otro rol (fondo,
+    # acento, primario...) debe verse. Lo que generaron los roles de arriba es
+    # solo un punto de partida; aqui se corrige si el contraste quedo corto.
+    for rol, (rol_fondo, minimo) in CONTRASTE_MINIMO.items():
+        if rol not in resultado:
+            continue
+        fondo_ref = resultado.get(rol_fondo) or ctx.get(
+            {"background": "fondo", "accent": "acento", "primary": "primario"}.get(rol_fondo))
+        if fondo_ref is None:
+            continue
+        resultado[rol] = asegurar_contraste(resultado[rol], fondo_ref, minimo)
+
     return {"nombre": nombre, "roles": resultado}
 
 
 # ---------- exportadores ----------
 
+# Orden fijo de exportacion: coincide con el orden de los campos del struct
+# Tema en temas.h del firmware (fondo, superficie, superficieAlt, primario,
+# acento, acentoAlt, borde, texto, textoTenue, textoSobreAcento). Si el orden
+# de salida no coincide con el del struct, cada valor cae en el campo
+# equivocado al copiar y pegar -- por ejemplo "texto" termina llevando el
+# color que se calculo para "textOnAccent", y el contraste que se garantizo
+# para ese rol ya no aplica al campo donde quedo. Cualquier rol fuera de esta
+# lista (success, shadow, link...) se agrega al final, en el orden en que se
+# generaron.
+ORDEN_EXPORT = ["background", "surface", "surfaceAlt", "primary", "accent",
+                "accentAlt", "border", "text", "textMuted", "textOnAccent",
+                "textOnPrimary", "link", "success", "warning", "danger",
+                "info", "shadow", "overlay"]
+
+
+def _roles_ordenados(tema):
+    orden = [r for r in ORDEN_EXPORT if r in tema["roles"]]
+    orden += [r for r in tema["roles"] if r not in orden]
+    return orden
+
+
 def exp_cpp(tema):
     lineas = ["  {"]
     lineas.append(f'    /* nombre           */ "{tema["nombre"]}",')
-    for rol, rgb in tema["roles"].items():
+    for rol in _roles_ordenados(tema):
+        rgb = tema["roles"][rol]
         r, g, b = (int(round(c)) for c in rgb)
         v565 = rgb_a_rgb565(rgb)
         lineas.append(f"    /* {rol:<16} */ rgb565({r:3d}, {g:3d}, {b:3d}),   // {rgb_a_hex(rgb)}  ->  0x{v565:04X}")
@@ -181,23 +247,23 @@ def exp_cpp(tema):
 def exp_json(tema):
     data = {
         "nombre": tema["nombre"],
-        "colores": {rol: rgb_a_hex(rgb) for rol, rgb in tema["roles"].items()},
+        "colores": {rol: rgb_a_hex(tema["roles"][rol]) for rol in _roles_ordenados(tema)},
     }
     return json.dumps(data, indent=2, ensure_ascii=False)
 
 
 def exp_css(tema):
     lineas = [":root {"]
-    for rol, rgb in tema["roles"].items():
-        lineas.append(f"  --{rol}: {rgb_a_hex(rgb)};")
+    for rol in _roles_ordenados(tema):
+        lineas.append(f"  --{rol}: {rgb_a_hex(tema['roles'][rol])};")
     lineas.append("}")
     return "\n".join(lineas)
 
 
 def exp_hex(tema):
     lineas = [f"# Tema: {tema['nombre']}"]
-    for rol, rgb in tema["roles"].items():
-        lineas.append(f"{rol}: {rgb_a_hex(rgb)}")
+    for rol in _roles_ordenados(tema):
+        lineas.append(f"{rol}: {rgb_a_hex(tema['roles'][rol])}")
     return "\n".join(lineas)
 
 

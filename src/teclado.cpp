@@ -1,11 +1,15 @@
 #include "Drivers/teclado.h"
 #include <BleKeyboard.h>
+#include <NimBLEDevice.h>
 
-static BleKeyboard s_teclado("Purple Deck", "Tesla Lab", 100);
+static BleKeyboard s_teclado(BLE_NOMBRE, "Tesla Lab", 100);
 
 void tecladoIniciar()
 {
   s_teclado.begin();
+  // por defecto NimBLE NO vuelve a anunciarse sola tras una desconexion
+  NimBLEServer *srv = NimBLEDevice::getServer();
+  if (srv) srv->advertiseOnDisconnect(true);
 }
 
 bool tecladoConectado()
@@ -51,4 +55,31 @@ void tecladoAbrirApp(const char *nombre)
   s_teclado.print(nombre);
   delay(500);
   s_teclado.write(KEY_RETURN);
+}
+
+bool tecladoEmparejado()
+{
+  return NimBLEDevice::getNumBonds() > 0;
+}
+
+const char *tecladoDireccion()
+{
+  static char b[24];
+  NimBLEServer *srv = NimBLEDevice::getServer();
+  if (!srv || srv->getConnectedCount() == 0) return nullptr;
+
+  strncpy(b, srv->getPeerInfo((uint8_t)0).getAddress().toString().c_str(), sizeof(b) - 1);
+  b[sizeof(b) - 1] = '\0';
+  return b;
+}
+
+void tecladoReemparejar()
+{
+  NimBLEServer *srv = NimBLEDevice::getServer();
+  if (srv && srv->getConnectedCount() > 0) srv->disconnect(srv->getPeerInfo((uint8_t)0));
+
+  NimBLEDevice::deleteAllBonds();
+
+  if (srv) srv->getAdvertising()->start();
+  Serial.println("[teclado] bluetooth reiniciado: emparejamientos borrados, anunciandose de nuevo");
 }

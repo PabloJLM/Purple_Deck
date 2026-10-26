@@ -89,17 +89,45 @@ fueron encontradas, si hubo conexión WiFi y qué hora se recibió.
 
 ## Personalización
 
-**Colores.** El tema actual se llama *Afton*, en morado y dorado, inspirado
-en Purple Guy y Springtrap. 
+**Colores.** El tema por defecto se llama *Afton*, en morado y dorado,
+inspirado en Purple Guy y Springtrap. Todos los temas se definen en
+`src/temas.cpp`, como entradas del arreglo `TEMAS[]`.
 
-Todos los colores se definen en `temas.cpp`;
-agregar un tema consiste en copiar ese bloque y modificar los valores.
+Cada tema es un `struct Tema` (`src/Estaticos/temas.h`) con **10 campos en
+este orden exacto**:
 
-| Elemento | Color |
-|---|---|
-| Fondo | `#130A1C` |
-| Botones | `#6D28A8` |
-| Detalles | `#C9A227` |
+```
+fondo, superficie, superficieAlt, primario, acento, acentoAlt,
+borde, texto, textoTenue, textoSobreAcento
+```
+
+El orden importa: son solo valores posicionales, así que si un campo queda
+en el lugar equivocado el programa sigue compilando pero usa, por ejemplo,
+el color pensado para "texto sobre acento" como fondo de tarjeta — y el
+contraste que se calculó para un rol ya no aplica al rol donde terminó. Así
+se rompieron por un tiempo los temas "Light" y "Cyberpunk" (letras
+invisibles en algunos botones).
+
+**Generador de temas (`generador_temas.py`).** Script de escritorio
+(Tkinter) para crear temas nuevos sin calcular colores a mano:
+
+- Parte de 2 a 5 colores "semilla" (o un preset) y deriva automáticamente
+  fondo, superficie(s), primario, acento(s) y texto.
+- Vista previa en vivo con una maqueta de pantalla (cabecera, tarjeta,
+  botones, lista) para ver el tema antes de usarlo.
+- Fuerza un contraste mínimo (WCAG: 4.5:1 para texto normal, 3:1 para texto
+  atenuado) entre cada color de texto y el fondo sobre el que se dibuja,
+  ajustando solo su luminosidad — nunca su tono ni saturación. Con colores
+  semilla razonables esto garantiza letras legibles; con una semilla muy
+  cercana al gris medio puede no alcanzar el mínimo exacto, porque ningún
+  blanco o negro llega a 4.5:1 contra un gris a medio camino.
+- Exporta a C++ (bloque listo para pegar en `TEMAS[]`, ya en el orden
+  correcto del struct), JSON, CSS o una lista de hex.
+- Requiere Python 3 (usa solo Tkinter, incluido con Python en Windows).
+
+Para agregar un tema: correr `python generador_temas.py`, elegir colores,
+copiar el bloque C++ generado dentro de `TEMAS[]` en `temas.cpp`, y
+listo — `NUM_TEMAS` se calcula solo.
 
 **Acción de cada botón.** Se define al final de `screen_deck.cpp`, en el
 lugar señalado con un comentario.
