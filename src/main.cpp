@@ -3,6 +3,7 @@
 #include "Drivers/tiempo.h"
 #include "Drivers/notificaciones.h"
 #include "Drivers/audio.h"
+#include "Drivers/teclado.h"
 #include "Drivers/temporizadores.h"
 #include "Estaticos/temas.h"
 #include "Pantallas/screen_menu.h"
@@ -15,6 +16,7 @@
 #include "Pantallas/screen_ajustes.h"
 #include "Pantallas/screen_slider.h"
 #include "Pantallas/screen_temas.h"
+#include "Pantallas/screen_credenciales.h"
 #include "Pantallas/screen_pomodoro.h"
 #include "Pantallas/screen_reloj.h"
 #include "Pantallas/screen_idle.h"
@@ -51,6 +53,7 @@ static void salirDe(Screen s)
     case SCREEN_REPOSO:     screenReposoSalir();     break;
     case SCREEN_VOLUMEN:    screenVolumenSalir();    break;
     case SCREEN_TEMAS:      screenTemasSalir();      break;
+    case SCREEN_CREDENCIALES: screenCredencialesSalir(); break;
     case SCREEN_POMODORO:   screenPomodoroSalir();   break;
     case SCREEN_RELOJ:      screenRelojSalir();      break;
     case SCREEN_IDLE:       screenIdleSalir();       break;
@@ -73,6 +76,7 @@ static void entrarEn(Screen s)
     case SCREEN_REPOSO:     screenReposoEntrar();     break;
     case SCREEN_VOLUMEN:    screenVolumenEntrar();    break;
     case SCREEN_TEMAS:      screenTemasEntrar();      break;
+    case SCREEN_CREDENCIALES: screenCredencialesEntrar(); break;
     case SCREEN_POMODORO:   screenPomodoroEntrar();   break;
     case SCREEN_RELOJ:      screenRelojEntrar();      break;
     case SCREEN_IDLE:       screenIdleEntrar();       break;
@@ -95,6 +99,7 @@ static void loopDe(Screen s)
     case SCREEN_REPOSO:     screenReposoLoop();     break;
     case SCREEN_VOLUMEN:    screenVolumenLoop();    break;
     case SCREEN_TEMAS:      screenTemasLoop();      break;
+    case SCREEN_CREDENCIALES: screenCredencialesLoop(); break;
     case SCREEN_POMODORO:   screenPomodoroLoop();   break;
     case SCREEN_RELOJ:      screenRelojLoop();      break;
     case SCREEN_IDLE:       screenIdleLoop();       break;
@@ -163,6 +168,8 @@ static void notificacionesDemo()
 void setup()
 {
   Serial.begin(115200);
+  Serial.setTxTimeoutMs(0);
+  tecladoIniciar();
   delay(200);
   Serial.println("\n[purple_deck] arrancando");
 

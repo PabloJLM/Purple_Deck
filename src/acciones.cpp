@@ -1,5 +1,6 @@
 #include "Drivers/acciones.h"
 #include "Drivers/display.h"
+#include "Drivers/teclado.h"
 #include "Pantallas/screen_idle.h"
 #include "Pantallas/screen_slides.h"
 #include "config.h"
@@ -86,6 +87,18 @@ bool accionEjecutar(Accion a)
       if (modoBloqueo == BLOQUEO_SLIDES) slidesEscanear();
       Serial.printf("[ajustes] bloqueo %s\n", modoBloqueo == BLOQUEO_RELOJ ? "reloj" : "slides");
       return false;
+
+    case ACC_VOL_UP:       tecladoMedia(MEDIA_VOL_UP);    return false;
+    case ACC_VOL_DOWN:     tecladoMedia(MEDIA_VOL_DOWN);  return false;
+    case ACC_MUTE:         tecladoMedia(MEDIA_MUTE);      return false;
+    case ACC_PLAY_PAUSA:   tecladoMedia(MEDIA_PLAY_PAUSA); return false;
+    case ACC_SIGUIENTE:    tecladoMedia(MEDIA_SIGUIENTE); return false;
+    case ACC_ANTERIOR:     tecladoMedia(MEDIA_ANTERIOR);  return false;
+    case ACC_CAPTURA:      tecladoAtajo({ TECLA_WIN, TECLA_SHIFT, 's' }); return false;
+    case ACC_ESCRITORIO:   tecladoAtajo({ TECLA_WIN, 'd' }); return false;
+    case ACC_BLOQUEAR_PC:  tecladoAtajo({ TECLA_WIN, 'l' }); return false;
+    case ACC_ABRIR_SPOTIFY:   tecladoAbrirApp(APP_SPOTIFY);   return false;
+    case ACC_ABRIR_NAVEGADOR: tecladoAbrirApp(APP_NAVEGADOR); return false;
 
     case ACC_BLOQUEAR_YA:
       pedirBloqueo(BLOQUEO_RELOJ);

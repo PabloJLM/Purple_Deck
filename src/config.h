@@ -43,6 +43,9 @@ enum BloqueoModo : uint8_t { BLOQUEO_RELOJ = 0, BLOQUEO_SLIDES = 1 };
 #define POMO_CICLOS    4
 #define NUM_ALARMAS    4
 
+#define APP_SPOTIFY    "spotify"
+#define APP_NAVEGADOR  "brave"
+
 #define TZ_LOCAL "CST6"
 #define NTP_1 "pool.ntp.org"
 #define NTP_2 "time.nist.gov"
@@ -63,6 +66,7 @@ enum Screen : uint8_t {
   SCREEN_REPOSO,
   SCREEN_VOLUMEN,
   SCREEN_TEMAS,
+  SCREEN_CREDENCIALES,
   SCREEN_POMODORO,
   SCREEN_RELOJ,
   SCREEN_IDLE,

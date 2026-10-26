@@ -6,6 +6,7 @@
 #include "Estaticos/temas.h"
 #include "Drivers/acciones.h"
 #include "config.h"
+#include "secrets.h"
 
 static const char *subReloj()
 {
@@ -15,6 +16,11 @@ static const char *subReloj()
 static const char *subTema()
 {
   return T().nombre;
+}
+
+static const char *subRed()
+{
+  return WIFI_SSID;
 }
 
 static const char *subBloqueo()
@@ -33,6 +39,7 @@ static const Item ITEMS[] = {
   IT_ACC_DIN("Reloj",    nullptr, ACC_AJ_RELOJ,   subReloj),
   IT_PANT_DIN("Tema",    nullptr, SCREEN_TEMAS,   subTema),
   IT_ACC_DIN("Bloqueo",  nullptr, ACC_AJ_BLOQUEO, subBloqueo),
+  IT_PANT_DIN("Credenciales", nullptr, SCREEN_CREDENCIALES, subRed),
   IT_ACC("Reiniciar", "Reinicia el deck", nullptr, ACC_AJ_REINICIAR),
 };
 
