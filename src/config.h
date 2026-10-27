@@ -46,6 +46,12 @@ enum BloqueoModo : uint8_t { BLOQUEO_RELOJ = 0, BLOQUEO_SLIDES = 1 };
 #define APP_SPOTIFY    "spotify"
 #define APP_NAVEGADOR  "brave"
 
+// SolidWorks no trae atajo de fabrica para Extruir ni Sketch: el deck manda
+// Ctrl+Shift+<tecla> y hay que asignarlo en SolidWorks
+// (Herramientas > Personalizar > Teclado).
+#define SW_TECLA_EXTRUIR 'e'
+#define SW_TECLA_SKETCH  'k'
+
 #define TZ_LOCAL "CST6"
 #define NTP_1 "pool.ntp.org"
 #define NTP_2 "time.nist.gov"
@@ -61,6 +67,8 @@ enum Screen : uint8_t {
   SCREEN_LABVIEW,
   SCREEN_GIT,
   SCREEN_BLENDER,
+  SCREEN_CANDLE,
+  SCREEN_CANDLE_MOVER,
   SCREEN_AJUSTES,
   SCREEN_BRILLO,
   SCREEN_REPOSO,

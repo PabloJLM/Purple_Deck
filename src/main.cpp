@@ -11,6 +11,7 @@
 #include "Pantallas/screen_solidworks.h"
 #include "Pantallas/screen_sw_rotar.h"
 #include "Pantallas/screen_labview.h"
+#include "Pantallas/screen_candle.h"
 #include "Pantallas/screen_git.h"
 #include "Pantallas/screen_blender.h"
 #include "Pantallas/screen_ajustes.h"
@@ -21,6 +22,7 @@
 #include "Pantallas/screen_ftp.h"
 #include "Pantallas/screen_bluetooth.h"
 #include "Drivers/terminal.h"
+#include "Drivers/slots.h"
 #include "Pantallas/screen_pomodoro.h"
 #include "Pantallas/screen_reloj.h"
 #include "Pantallas/screen_idle.h"
@@ -52,6 +54,8 @@ static void salirDe(Screen s)
     case SCREEN_LABVIEW:    screenLabviewSalir();    break;
     case SCREEN_GIT:        screenGitSalir();        break;
     case SCREEN_BLENDER:    screenBlenderSalir();    break;
+    case SCREEN_CANDLE:     screenCandleSalir();     break;
+    case SCREEN_CANDLE_MOVER: screenCandleMoverSalir(); break;
     case SCREEN_AJUSTES:    screenAjustesSalir();    break;
     case SCREEN_BRILLO:     screenBrilloSalir();     break;
     case SCREEN_REPOSO:     screenReposoSalir();     break;
@@ -78,6 +82,8 @@ static void entrarEn(Screen s)
     case SCREEN_LABVIEW:    screenLabviewEntrar();    break;
     case SCREEN_GIT:        screenGitEntrar();        break;
     case SCREEN_BLENDER:    screenBlenderEntrar();    break;
+    case SCREEN_CANDLE:     screenCandleEntrar();     break;
+    case SCREEN_CANDLE_MOVER: screenCandleMoverEntrar(); break;
     case SCREEN_AJUSTES:    screenAjustesEntrar();    break;
     case SCREEN_BRILLO:     screenBrilloEntrar();     break;
     case SCREEN_REPOSO:     screenReposoEntrar();     break;
@@ -104,6 +110,8 @@ static void loopDe(Screen s)
     case SCREEN_LABVIEW:    screenLabviewLoop();    break;
     case SCREEN_GIT:        screenGitLoop();        break;
     case SCREEN_BLENDER:    screenBlenderLoop();    break;
+    case SCREEN_CANDLE:     screenCandleLoop();     break;
+    case SCREEN_CANDLE_MOVER: screenCandleMoverLoop(); break;
     case SCREEN_AJUSTES:    screenAjustesLoop();    break;
     case SCREEN_BRILLO:     screenBrilloLoop();     break;
     case SCREEN_REPOSO:     screenReposoLoop();     break;
@@ -185,6 +193,7 @@ void setup()
   tiempoIniciar();
   temporizadoresIniciar();
   terminalIniciar();
+  slotsIniciar();
   audioIniciar();
 
   s_ultimaActividad = millis();

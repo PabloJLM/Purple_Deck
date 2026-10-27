@@ -24,12 +24,27 @@ enum Accion : uint8_t {
   ACC_BL_FRONTAL, ACC_BL_LATERAL, ACC_BL_SUPERIOR, ACC_BL_ENCUADRAR,
   ACC_BL_EDICION, ACC_BL_EXTRUIR, ACC_BL_AGREGAR, ACC_BL_RENDER, ACC_BL_GUARDAR,
 
-  ACC_AJ_RELOJ, ACC_AJ_BLOQUEO, ACC_AJ_REINICIAR,
+  ACC_CN_ENVIAR, ACC_CN_PAUSA, ACC_CN_ABORTAR, ACC_CN_RESET, ACC_CN_DESBLOQUEAR,
+  ACC_CN_HOME_XY, ACC_CN_HEIGHTMAP, ACC_CN_HUSILLO, ACC_CN_PROBE_Z,
+  ACC_CN_X_MENOS, ACC_CN_X_MAS, ACC_CN_Y_MENOS, ACC_CN_Y_MAS,
+  ACC_CN_Z_MENOS, ACC_CN_Z_MAS, ACC_CN_PARAR,
 
-  ACC_BLOQUEAR_YA, ACC_FOTOS_YA
+  ACC_AJ_RELOJ, ACC_AJ_BLOQUEO, ACC_AJ_REINICIAR, ACC_AJ_TECLADO,
+
+  ACC_BLOQUEAR_YA, ACC_FOTOS_YA,
+
+  // espacios editables del menu (Drivers/slots.h): deben ser consecutivos
+  ACC_SLOT_1, ACC_SLOT_2, ACC_SLOT_3
 };
 
 // true si hay que redibujar la pantalla completa
 bool accionEjecutar(Accion a);
+
+// Catalogo de acciones con nombre (las que se pueden asignar a un espacio).
+// La clave es texto estable: grupo.nombre en minuscula, p.ej. "candle.probe_z".
+uint8_t accionesCantidad();
+bool    accionInfo(uint8_t i, char *clave, size_t cap,
+                   const char **grupo, const char **nombre, const char **atajo);
+bool    accionPorClave(const char *clave, Accion *out);
 
 #endif  // PURPLE_DECK_DRIVERS_ACCIONES_H_

@@ -35,6 +35,15 @@ def rgb_a_rgb565(rgb):
     return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3)
 
 
+def a_565(rgb):
+    """Redondea un color a lo que la pantalla puede mostrar (RGB565). El
+    contraste se verifica sobre esto, no sobre el color de 24 bits: si no,
+    un 4.52 puede quedar en 4.48 al convertirlo."""
+    v = rgb_a_rgb565(rgb)
+    r, g, b = (v >> 11) & 0x1F, (v >> 5) & 0x3F, v & 0x1F
+    return (round(r * 255 / 31), round(g * 255 / 63), round(b * 255 / 31))
+
+
 def mix(rgb1, rgb2, t):
     return tuple(a + (b - a) * t for a, b in zip(rgb1, rgb2))
 
@@ -49,12 +58,18 @@ def ajustar_hsl(rgb, dh=0, ds=0, dl=0):
     return hsl_a_rgb(h + dh, max(0, min(100, s + ds)), max(0, min(100, l + dl)))
 
 
-def contraste(rgb1, rgb2):
-    def lum(c):
+def luminancia(rgb):
+    """Luminancia relativa WCAG (0 = negro, 1 = blanco). Ojo: no es la L de
+    HSL -- un cian y un azul con la misma L de HSL tienen luminancias muy
+    distintas."""
+    def lin(c):
         c = c / 255.0
         return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
-    L1 = 0.2126*lum(rgb1[0]) + 0.7152*lum(rgb1[1]) + 0.0722*lum(rgb1[2])
-    L2 = 0.2126*lum(rgb2[0]) + 0.7152*lum(rgb2[1]) + 0.0722*lum(rgb2[2])
+    return 0.2126*lin(rgb[0]) + 0.7152*lin(rgb[1]) + 0.0722*lin(rgb[2])
+
+
+def contraste(rgb1, rgb2):
+    L1, L2 = luminancia(rgb1), luminancia(rgb2)
     return (max(L1, L2) + 0.05) / (min(L1, L2) + 0.05)
 
 
@@ -64,27 +79,41 @@ def mejor_texto_sobre(rgb):
     return oscuro if contraste(rgb, oscuro) >= contraste(rgb, claro) else claro
 
 
-def asegurar_contraste(fg, bg, minimo=4.5, pasos=40):
-    """Empuja la luminosidad de fg hacia el extremo (blanco o negro) mas lejano
-    de bg hasta que el contraste con bg alcance 'minimo', sin cambiar su tono
-    ni su saturacion. Si no se alcanza, devuelve lo mas cerca que se pudo."""
+def asegurar_contraste(fg, bg, minimo=4.5, pasos=100, direccion=None):
+    """Cambia solo la luminosidad de fg (tono y saturacion intactos) hasta que
+    su contraste con bg llegue a 'minimo'. Sin 'direccion' prueba aclarar y
+    oscurecer y se queda con el cambio mas pequeno que lo logra; con
+    direccion=+1 solo aclara y con -1 solo oscurece. Si no se logra: sin
+    direccion devuelve el de mayor contraste posible; con direccion devuelve
+    el extremo (blanco/negro de ese tono), para que al mover despues el otro
+    color hacia el extremo opuesto el minimo siempre se alcance."""
     if contraste(fg, bg) >= minimo:
         return fg
 
     h, s, l = rgb_a_hsl(fg)
-    l_bg = rgb_a_hsl(bg)[2]
-    direccion = 1 if l_bg < 50 else -1  # fondo oscuro -> aclarar; fondo claro -> oscurecer
-
+    mejor_ok, mejor_ok_paso = None, None
     mejor, mejor_c = fg, contraste(fg, bg)
-    for i in range(1, pasos + 1):
-        l_cand = max(0.0, min(100.0, l + direccion * (100.0 / pasos) * i))
-        cand = hsl_a_rgb(h, s, l_cand)
-        c = contraste(cand, bg)
-        if c > mejor_c:
-            mejor, mejor_c = cand, c
-        if c >= minimo:
-            return cand
-    return mejor
+    fija = direccion is not None
+    if fija:
+        mejor = a_565(hsl_a_rgb(h, s, 100.0 if direccion > 0 else 0.0))
+
+    for d in ((direccion,) if fija else (1, -1)):
+        for i in range(1, pasos + 1):
+            l_cand = l + d * (100.0 / pasos) * i
+            if l_cand < 0 or l_cand > 100:
+                l_cand = max(0.0, min(100.0, l_cand))
+            cand = a_565(hsl_a_rgb(h, s, l_cand))
+            c = contraste(cand, bg)
+            if c >= minimo:
+                if mejor_ok_paso is None or i < mejor_ok_paso:
+                    mejor_ok, mejor_ok_paso = cand, i
+                break
+            if not fija and c > mejor_c:
+                mejor, mejor_c = cand, c
+            if l_cand in (0.0, 100.0):
+                break
+
+    return mejor_ok if mejor_ok is not None else mejor
 
 
 # ---------- catálogo de roles ----------
@@ -152,16 +181,74 @@ def analizar_semillas(colores):
             "acentoAlt": acento_alt, "texto": texto}
 
 
-# Para cada rol de texto, contra que rol de fondo debe mantener contraste
-# minimo, y cual es el piso aceptable (4.5 = texto normal AA, 3.0 = texto
-# secundario / muted, igual al minimo AA para texto grande).
-CONTRASTE_MINIMO = {
-    "text":          ("background", 4.5),
-    "textMuted":     ("background", 3.0),
-    "textOnAccent":  ("accent",     4.5),
-    "textOnPrimary": ("primary",    4.5),
-    "link":          ("background", 3.0),
-}
+# Parejas texto/fondo tal como las dibuja el firmware de Purple_Deck, con el
+# contraste minimo exigido (WCAG: 4.5 texto normal, 3.0 texto secundario o
+# etiquetas grandes).
+PARES_CONTRASTE = [
+    ("text",          "background", 4.5),
+    ("text",          "surface",    4.5),   # tarjetas
+    ("text",          "primary",    4.5),   # botones de la rejilla
+    ("textMuted",     "background", 3.0),
+    ("textMuted",     "surface",    3.0),
+    ("textMuted",     "surfaceAlt", 3.0),
+    ("textOnAccent",  "accent",     4.5),
+    ("textOnPrimary", "primary",    4.5),
+    ("accent",        "surface",    3.0),   # etiquetas de tarjetas
+    ("accent",        "surfaceAlt", 3.0),   # texto del boton presionado
+    ("link",          "background", 3.0),
+]
+
+# Roles que van "del lado del texto" y roles que van "del lado del fondo".
+# En un tema oscuro el lado del texto es el claro; en uno claro, el oscuro.
+# Cada grupo solo se mueve hacia su propio extremo, asi que nunca se cruzan
+# ni oscilan: en el peor caso el texto termina blanco y el fondo negro
+# (21:1), por lo que el minimo siempre se alcanza.
+MARGEN = 0.05
+
+LADO_TEXTO = {"text", "textMuted", "link", "accent"}
+LADO_FONDO = {"background", "surface", "surfaceAlt", "primary"}
+
+
+def garantizar_contraste(roles, claro_arriba, rondas=100):
+    """Corrige 'roles' (dict rol -> rgb) en sitio hasta que todas las parejas
+    de PARES_CONTRASTE presentes cumplan su minimo. claro_arriba: True si el
+    texto del tema es mas claro que el fondo (tema oscuro)."""
+    d_texto = 1 if claro_arriba else -1
+    for rol in roles:
+        roles[rol] = a_565(roles[rol])
+
+    def dir_de(rol):
+        if rol in LADO_TEXTO:
+            return d_texto
+        if rol in LADO_FONDO:
+            return -d_texto
+        return None  # textOnAccent / textOnPrimary: libre, solo dependen de un fondo
+
+    for _ in range(rondas):
+        cambio = False
+        for fg, bg, minimo in PARES_CONTRASTE:
+            if fg not in roles or bg not in roles:
+                continue
+            minimo += MARGEN  # colchon por redondeos del panel
+            if contraste(roles[fg], roles[bg]) >= minimo:
+                continue
+            cambio = True
+            roles[fg] = asegurar_contraste(roles[fg], roles[bg], minimo, direccion=dir_de(fg))
+            if contraste(roles[fg], roles[bg]) < minimo:
+                roles[bg] = asegurar_contraste(roles[bg], roles[fg], minimo, direccion=dir_de(bg))
+        if not cambio:
+            break
+    return roles
+
+
+def reporte_contraste(roles):
+    """Lista (fg, bg, contraste, minimo, ok) de cada pareja presente."""
+    filas = []
+    for fg, bg, minimo in PARES_CONTRASTE:
+        if fg in roles and bg in roles:
+            c = contraste(roles[fg], roles[bg])
+            filas.append((fg, bg, c, minimo, c >= minimo - 1e-6))
+    return filas
 
 
 def derivar_tema(semillas, roles_salida, nombre="Custom",
@@ -172,6 +259,10 @@ def derivar_tema(semillas, roles_salida, nombre="Custom",
     if modo_claro:
         fondo, texto = texto, fondo
     texto = asegurar_contraste(texto, fondo, 4.5)
+    if contraste(texto, fondo) < 4.5:
+        # fondo cerca del gris medio: ningun texto llega, se mueve el fondo
+        # (antes de derivar superficies, para que estas lo sigan)
+        fondo = asegurar_contraste(fondo, texto, 4.5)
 
     ctx = {
         "fondo": fondo, "texto": texto,
@@ -194,18 +285,7 @@ def derivar_tema(semillas, roles_salida, nombre="Custom",
         resultado[rol] = rgb
         ctx["roles"][rol] = rgb
 
-    # Segunda pasada: todo rol que se dibuja como texto sobre otro rol (fondo,
-    # acento, primario...) debe verse. Lo que generaron los roles de arriba es
-    # solo un punto de partida; aqui se corrige si el contraste quedo corto.
-    for rol, (rol_fondo, minimo) in CONTRASTE_MINIMO.items():
-        if rol not in resultado:
-            continue
-        fondo_ref = resultado.get(rol_fondo) or ctx.get(
-            {"background": "fondo", "accent": "acento", "primary": "primario"}.get(rol_fondo))
-        if fondo_ref is None:
-            continue
-        resultado[rol] = asegurar_contraste(resultado[rol], fondo_ref, minimo)
-
+    garantizar_contraste(resultado, luminancia(texto) >= luminancia(fondo))
     return {"nombre": nombre, "roles": resultado}
 
 
@@ -410,6 +490,10 @@ class App(tk.Tk):
         self.f_swatches = tk.Frame(right, bg="#1e1e1e")
         self.f_swatches.pack(fill="x", padx=20, pady=(0, 8))
 
+        # Reporte de contraste: cada pareja texto/fondo que dibuja el deck
+        self.f_contraste = tk.Frame(right, bg="#1e1e1e")
+        self.f_contraste.pack(fill="x", padx=20, pady=(0, 8))
+
         f_out = tk.Frame(right, bg="#1e1e1e")
         f_out.pack(fill="x", padx=20, pady=(0, 20))
         tk.Label(f_out, text="Salida:", bg="#1e1e1e", fg="#aaa",
@@ -575,7 +659,7 @@ class App(tk.Tk):
         self.lbl_card_t.configure(bg=H(surf), fg=H(txt))
         self.lbl_card_d.configure(bg=H(surf), fg=H(muted))
         self.btn_primario.master.configure(bg=H(surf))
-        self.btn_primario.configure(bg=H(prim), fg=H(onAcc))
+        self.btn_primario.configure(bg=H(prim), fg=H(txt))  # en el deck: texto sobre primario
         self.btn_acento.configure(bg=H(acc), fg=H(onAcc))
         self.btn_alt.configure(bg=H(accA), fg=H(onAcc))
 
@@ -590,6 +674,24 @@ class App(tk.Tk):
                         w.configure(bg=H(surfA), fg=H(muted))
                     else:
                         w.configure(bg=H(surfA), fg=H(txt))
+
+        # Contraste
+        for w in self.f_contraste.winfo_children():
+            w.destroy()
+        filas = reporte_contraste(self.tema["roles"])
+        malas = [f for f in filas if not f[4]]
+        resumen = ("Contraste: todo OK (verificado en RGB565)" if not malas
+                   else f"Contraste: {len(malas)} pareja(s) bajo el minimo")
+        tk.Label(self.f_contraste, text=resumen, bg="#1e1e1e",
+                 fg="#7ec699" if not malas else "#e06c75",
+                 font=("Segoe UI", 9, "bold"), anchor="w").pack(fill="x")
+        grid = tk.Frame(self.f_contraste, bg="#1e1e1e")
+        grid.pack(fill="x")
+        for i, (fg, bg, c, m, ok) in enumerate(filas):
+            tk.Label(grid, text=f"{'✓' if ok else '✗'} {fg} / {bg}: {c:.1f} (min {m:.1f})",
+                     bg="#1e1e1e", fg="#aaa" if ok else "#e06c75",
+                     font=("Consolas", 8), anchor="w").grid(row=i // 3, column=i % 3,
+                                                            sticky="w", padx=(0, 18))
 
         # Swatches
         for w in self.f_swatches.winfo_children():

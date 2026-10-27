@@ -113,6 +113,9 @@ void BleKeyboard::begin(void)
   NimBLEAdvertising *pAdvertising = pServer->getAdvertising();
   pAdvertising->setAppearance(HID_KEYBOARD);
   pAdvertising->addServiceUUID(hid->getHidService()->getUUID());
+  // NimBLE 2.x no mete el nombre en el anuncio por si solo: sin esto la PC
+  // solo ve la apariencia (un "teclado" generico) hasta conectarse.
+  pAdvertising->setName(deviceName);
   pAdvertising->start();
   hid->setBatteryLevel(batteryLevel);
 }

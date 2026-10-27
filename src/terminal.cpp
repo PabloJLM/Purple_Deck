@@ -2,6 +2,7 @@
 #include "Drivers/display.h"
 #include "Drivers/tiempo.h"
 #include "Drivers/temporizadores.h"
+#include "Drivers/slots.h"
 #include "Pantallas/screen_slides.h"
 #include "config.h"
 #include <SD.h>
@@ -138,6 +139,7 @@ static void ayuda()
   Serial.println(F("  df         los 4 anteriores juntos"));
   Serial.println(F("  info       datos del deck"));
   Serial.println(F("  uptime     tiempo desde el ultimo reinicio"));
+  Serial.println(F("  slot       espacios editables del menu (escribe 'slot help')"));
   Serial.println(F("  reboot     reinicia el deck"));
   Serial.println(F("  clear      limpia la pantalla del monitor"));
 }
@@ -154,6 +156,7 @@ static void procesar(String cmd)
   else if (cmd == "df")       verTodo();
   else if (cmd == "info")     verInfo();
   else if (cmd == "uptime")   verUptime();
+  else if (slotsComando(cmd)) { }
   else if (cmd == "reboot")   { Serial.println(F("  reiniciando...")); delay(150); ESP.restart(); }
   else if (cmd == "clear" || cmd == "cls") Serial.print(F("\033[2J\033[H"));
   else {

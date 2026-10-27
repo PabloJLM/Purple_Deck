@@ -115,12 +115,14 @@ invisibles en algunos botones).
   fondo, superficie(s), primario, acento(s) y texto.
 - Vista previa en vivo con una maqueta de pantalla (cabecera, tarjeta,
   botones, lista) para ver el tema antes de usarlo.
-- Fuerza un contraste mínimo (WCAG: 4.5:1 para texto normal, 3:1 para texto
-  atenuado) entre cada color de texto y el fondo sobre el que se dibuja,
-  ajustando solo su luminosidad — nunca su tono ni saturación. Con colores
-  semilla razonables esto garantiza letras legibles; con una semilla muy
-  cercana al gris medio puede no alcanzar el mínimo exacto, porque ningún
-  blanco o negro llega a 4.5:1 contra un gris a medio camino.
+- Garantiza contraste mínimo (WCAG: 4.5:1 para texto normal, 3:1 para
+  texto atenuado y etiquetas) en cada pareja texto/fondo que dibuja el deck:
+  texto sobre fondo, tarjetas y botones; texto tenue sobre fondo y tarjetas;
+  texto sobre acento; acento sobre tarjetas. Solo cambia luminosidad, nunca
+  tono ni saturación. Primero mueve el texto; si eso no basta (por ejemplo
+  un fondo gris medio), mueve también el fondo. El contraste se verifica
+  sobre los colores ya convertidos a RGB565, que es lo que muestra la
+  pantalla, y la ventana muestra el reporte de cada pareja.
 - Exporta a C++ (bloque listo para pegar en `TEMAS[]`, ya en el orden
   correcto del struct), JSON, CSS o una lista de hex.
 - Requiere Python 3 (usa solo Tkinter, incluido con Python en Windows).
