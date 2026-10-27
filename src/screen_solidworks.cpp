@@ -1,6 +1,7 @@
 #include "Pantallas/screen_solidworks.h"
 #include "Estaticos/rejilla.h"
 #include "Drivers/acciones.h"
+#include "Drivers/menus.h"
 
 static const Item ITEMS[] = {
   IT_ACC("Ajustar\nvista", nullptr, nullptr, ACC_SW_AJUSTAR),
@@ -13,13 +14,8 @@ static const Item ITEMS[] = {
   IT_PANT("Mover",         nullptr, nullptr, SCREEN_SW_MOVER),
 };
 
-static const RejillaCfg CFG = {
-  ITEMS, sizeof(ITEMS) / sizeof(ITEMS[0]),
-  3,
-  true,
-  SCREEN_MENU
-};
+const Item *screenSolidworksItems(uint8_t *n) { *n = sizeof(ITEMS) / sizeof(ITEMS[0]); return ITEMS; }
 
-void screenSolidworksEntrar() { rejillaEntrar(CFG); }
-void screenSolidworksLoop()   { rejillaLoop();      }
-void screenSolidworksSalir()  { rejillaSalir();     }
+void screenSolidworksEntrar() { menuEntrar(M_SOLIDWORKS); }
+void screenSolidworksLoop()   { menuLoop(M_SOLIDWORKS);   }
+void screenSolidworksSalir()  { menuSalir();    }

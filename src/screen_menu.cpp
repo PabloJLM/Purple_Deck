@@ -1,12 +1,13 @@
 #include "Pantallas/screen_menu.h"
 #include "Estaticos/rejilla.h"
 #include "Drivers/acciones.h"
-#include "Drivers/slots.h"
+#include "Drivers/menus.h"
 
 // ---------------------------------------------------------------------------
-//  Menu principal: 6 destinos en una rejilla de 3x2 que llena la pantalla.
-//  Iconos de 64x64 en LittleFS: /menu1.png ... /menu8.png
-//  Si falta alguno, el boton sale solo con texto.
+//  Menu principal: botones de fabrica. Cual va en que pagina y en que orden lo
+//  decide Drivers/menus.cpp (distribucion guardada, editable con tools.py).
+//  Iconos de 64x64 en LittleFS: /menu1.png ... /menu11.png (solo este menu
+//  lleva iconos). Si falta alguno, el boton sale solo con texto.
 // ---------------------------------------------------------------------------
 static const Item FIJOS[] = {
   IT_PANT("Macros",         "Volumen y media",  "/menu1.png", SCREEN_MACROS),
@@ -24,27 +25,19 @@ static const Item FIJOS[] = {
 
 #define N_FIJOS (sizeof(FIJOS) / sizeof(FIJOS[0]))
 
-// Los fijos + los espacios editables que no estan vacios (Drivers/slots.h)
-static Item        s_items[N_FIJOS + SLOTS_N];
-static RejillaCfg  s_cfg = { s_items, 0, 3, true, SCREEN_MENU, true };
-static uint32_t    s_version = 0;
+// Fijos + los 3 menus Custom (su nombre lo pone el usuario)
+static Item s_items[N_FIJOS + 3];
 
-static void armar()
+const Item *screenMenuItems(uint8_t *n)
 {
   memcpy(s_items, FIJOS, sizeof(FIJOS));
-  s_cfg.n = (uint8_t)(N_FIJOS + slotsAgregarItems(s_items + N_FIJOS));
-  s_version = slotsVersion();
+  for (uint8_t k = 0; k < 3; k++)
+    s_items[N_FIJOS + k] = Item{ menuNombreCustom(k), "Macros propias", nullptr,
+                                 ITEM_PANTALLA, (uint8_t)(SCREEN_CUSTOM1 + k), nullptr };
+  *n = (uint8_t)(N_FIJOS + 3);
+  return s_items;
 }
 
-void screenMenuEntrar() { armar(); rejillaEntrar(s_cfg); }
-void screenMenuLoop()
-{
-  // si se edito un espacio por la terminal mientras el menu esta abierto
-  if (s_version != slotsVersion()) {
-    rejillaSalir();
-    armar();
-    rejillaEntrar(s_cfg);
-  }
-  rejillaLoop();
-}
-void screenMenuSalir()  { rejillaSalir();  }
+void screenMenuEntrar() { menuEntrar(M_PRINCIPAL); }
+void screenMenuLoop()   { menuLoop(M_PRINCIPAL);   }
+void screenMenuSalir()  { menuSalir();             }

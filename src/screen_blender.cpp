@@ -1,6 +1,7 @@
 #include "Pantallas/screen_blender.h"
 #include "Estaticos/rejilla.h"
 #include "Drivers/acciones.h"
+#include "Drivers/menus.h"
 
 static const Item ITEMS[] = {
   IT_ACC("Frontal",         nullptr, nullptr, ACC_BL_FRONTAL),
@@ -14,13 +15,8 @@ static const Item ITEMS[] = {
   IT_ACC("Guardar",         nullptr, nullptr, ACC_BL_GUARDAR),
 };
 
-static const RejillaCfg CFG = {
-  ITEMS, sizeof(ITEMS) / sizeof(ITEMS[0]),
-  3,
-  true,
-  SCREEN_MENU
-};
+const Item *screenBlenderItems(uint8_t *n) { *n = sizeof(ITEMS) / sizeof(ITEMS[0]); return ITEMS; }
 
-void screenBlenderEntrar() { rejillaEntrar(CFG); }
-void screenBlenderLoop()   { rejillaLoop();      }
-void screenBlenderSalir()  { rejillaSalir();     }
+void screenBlenderEntrar() { menuEntrar(M_BLENDER); }
+void screenBlenderLoop()   { menuLoop(M_BLENDER);   }
+void screenBlenderSalir()  { menuSalir();    }

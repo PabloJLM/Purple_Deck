@@ -106,17 +106,14 @@ void slotEjecutar(uint8_t i)
   }
 }
 
-// --- items para el menu -----------------------------------------------------
-uint8_t slotsAgregarItems(Item *dest)
+// --- item para los menus ------------------------------------------------------
+bool slotItem(uint8_t i, Item *out)
 {
-  uint8_t n = 0;
-  for (uint8_t i = 0; i < SLOTS_N; i++) {
-    if (s_slots[i].tipo == SLOT_VACIO) continue;
-    dest[n++] = Item{ s_slots[i].etiqueta, nullptr,
-                      s_slots[i].icono[0] ? s_slots[i].icono : nullptr,
-                      ITEM_ACCION, (uint8_t)(ACC_SLOT_1 + i), nullptr };
-  }
-  return n;
+  if (i >= SLOTS_N || s_slots[i].tipo == SLOT_VACIO) return false;
+  *out = Item{ s_slots[i].etiqueta, nullptr,
+               s_slots[i].icono[0] ? s_slots[i].icono : nullptr,
+               ITEM_ACCION, (uint8_t)(ACC_SLOT_1 + i), nullptr };
+  return true;
 }
 
 // --- comandos de la terminal --------------------------------------------------
@@ -127,7 +124,7 @@ static void err(const char *m)  { Serial.print(F("ERR ")); Serial.println(m); }
 
 static void ayuda()
 {
-  Serial.println(F("  slot list                              muestra los 3 espacios"));
+  Serial.println(F("  slot list                              muestra las 27 macros (3 menus x 9)"));
   Serial.println(F("  slot actions                           acciones que se pueden asignar"));
   Serial.println(F("  slot set N tipo \"etiqueta\" \"valor\" [\"icono\"]"));
   Serial.println(F("       tipo: accion | teclas | texto | comando"));
@@ -137,8 +134,8 @@ static void ayuda()
   Serial.println(F("                       pageup pagedown up down left right)"));
   Serial.println(F("       texto   valor = texto que escribe;  comando = texto + Enter"));
   Serial.println(F("       en la etiqueta, \\n parte el texto en dos lineas"));
-  Serial.println(F("  slot clear N                           vacia el espacio N (1-3)"));
-  Serial.println(F("  slot test N                            ejecuta el espacio N"));
+  Serial.println(F("  slot clear N                           vacia la macro N (1-27)"));
+  Serial.println(F("  slot test N                            ejecuta la macro N"));
   ok();
 }
 
@@ -174,7 +171,7 @@ static void ponerSlot(char **t, int n)
   // t[0]="slot" t[1]="set" t[2]=N t[3]=tipo t[4]=etiqueta t[5]=valor [t[6]=icono]
   if (n < 6 || n > 7) { err("uso: slot set N tipo \"etiqueta\" \"valor\" [\"icono\"]"); return; }
   const int num = atoi(t[2]);
-  if (num < 1 || num > SLOTS_N) { err("N debe ser 1, 2 o 3"); return; }
+  if (num < 1 || num > SLOTS_N) { err("N debe estar entre 1 y 27"); return; }
 
   uint8_t tipo = SLOT_VACIO;
   for (uint8_t k = SLOT_ACCION; k <= SLOT_COMANDO; k++)
@@ -218,7 +215,7 @@ static void vaciarSlot(char **t, int n)
 {
   if (n != 3) { err("uso: slot clear N"); return; }
   const int num = atoi(t[2]);
-  if (num < 1 || num > SLOTS_N) { err("N debe ser 1, 2 o 3"); return; }
+  if (num < 1 || num > SLOTS_N) { err("N debe estar entre 1 y 27"); return; }
   memset(&s_slots[num - 1], 0, sizeof(Slot));
   guardar(num - 1);
   s_version++;
@@ -229,8 +226,8 @@ static void probarSlot(char **t, int n)
 {
   if (n != 3) { err("uso: slot test N"); return; }
   const int num = atoi(t[2]);
-  if (num < 1 || num > SLOTS_N) { err("N debe ser 1, 2 o 3"); return; }
-  if (s_slots[num - 1].tipo == SLOT_VACIO) { err("ese espacio esta vacio"); return; }
+  if (num < 1 || num > SLOTS_N) { err("N debe estar entre 1 y 27"); return; }
+  if (s_slots[num - 1].tipo == SLOT_VACIO) { err("esa macro esta vacia"); return; }
   slotEjecutar(num - 1);
   ok();
 }

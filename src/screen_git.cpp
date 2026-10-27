@@ -1,6 +1,7 @@
 #include "Pantallas/screen_git.h"
 #include "Estaticos/rejilla.h"
 #include "Drivers/acciones.h"
+#include "Drivers/menus.h"
 
 // Solo texto: los iconos son unicamente los del menu principal.
 // Siete por pagina; del 8 en adelante caen en la pagina 2.
@@ -18,13 +19,8 @@ static const Item ITEMS[] = {
   IT_ACC("Terminal\nexterna", nullptr, nullptr, ACC_VS_TERMINAL_EXT),
 };
 
-static const RejillaCfg CFG = {
-  ITEMS, sizeof(ITEMS) / sizeof(ITEMS[0]),
-  3,
-  true,
-  SCREEN_MENU
-};
+const Item *screenGitItems(uint8_t *n) { *n = sizeof(ITEMS) / sizeof(ITEMS[0]); return ITEMS; }
 
-void screenGitEntrar() { rejillaEntrar(CFG); }
-void screenGitLoop()   { rejillaLoop();      }
-void screenGitSalir()  { rejillaSalir();     }
+void screenGitEntrar() { menuEntrar(M_GIT); }
+void screenGitLoop()   { menuLoop(M_GIT);   }
+void screenGitSalir()  { menuSalir();    }

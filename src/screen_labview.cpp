@@ -1,6 +1,7 @@
 #include "Pantallas/screen_labview.h"
 #include "Estaticos/rejilla.h"
 #include "Drivers/acciones.h"
+#include "Drivers/menus.h"
 
 // Solo texto: los iconos son unicamente los del menu principal.
 static const Item ITEMS[] = {
@@ -12,13 +13,8 @@ static const Item ITEMS[] = {
   IT_ACC("Ordenar",            nullptr, nullptr, ACC_LV_ORDENAR),
 };
 
-static const RejillaCfg CFG = {
-  ITEMS, sizeof(ITEMS) / sizeof(ITEMS[0]),
-  3,
-  true,
-  SCREEN_MENU
-};
+const Item *screenLabviewItems(uint8_t *n) { *n = sizeof(ITEMS) / sizeof(ITEMS[0]); return ITEMS; }
 
-void screenLabviewEntrar() { rejillaEntrar(CFG); }
-void screenLabviewLoop()   { rejillaLoop();      }
-void screenLabviewSalir()  { rejillaSalir();     }
+void screenLabviewEntrar() { menuEntrar(M_LABVIEW); }
+void screenLabviewLoop()   { menuLoop(M_LABVIEW);   }
+void screenLabviewSalir()  { menuSalir();    }

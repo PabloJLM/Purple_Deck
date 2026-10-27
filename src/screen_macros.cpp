@@ -1,6 +1,7 @@
 #include "Pantallas/screen_macros.h"
 #include "Estaticos/rejilla.h"
 #include "Drivers/acciones.h"
+#include "Drivers/menus.h"
 
 // Solo texto: los iconos son unicamente los del menu principal.
 // de esta tabla). Siete por pagina; del 8 en adelante caen en la pagina 2.
@@ -18,13 +19,8 @@ static const Item ITEMS[] = {
   IT_ACC("Navegador",   nullptr, nullptr, ACC_ABRIR_NAVEGADOR),
 };
 
-static const RejillaCfg CFG = {
-  ITEMS, sizeof(ITEMS) / sizeof(ITEMS[0]),
-  3,
-  true,           // 3x3: Atras abajo-izquierda, Siguiente abajo-derecha
-  SCREEN_MENU
-};
+const Item *screenMacrosItems(uint8_t *n) { *n = sizeof(ITEMS) / sizeof(ITEMS[0]); return ITEMS; }
 
-void screenMacrosEntrar() { rejillaEntrar(CFG); }
-void screenMacrosLoop()   { rejillaLoop();      }
-void screenMacrosSalir()  { rejillaSalir();     }
+void screenMacrosEntrar() { menuEntrar(M_MACROS); }
+void screenMacrosLoop()   { menuLoop(M_MACROS);   }
+void screenMacrosSalir()  { menuSalir();    }

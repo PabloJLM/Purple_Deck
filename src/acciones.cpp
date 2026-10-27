@@ -255,9 +255,7 @@ bool accionEjecutar(Accion a)
       pedirBloqueo(BLOQUEO_SLIDES);
       return false;
 
-    case ACC_SLOT_1:
-    case ACC_SLOT_2:
-    case ACC_SLOT_3:
+    case ACC_SLOT_1 ... ACC_SLOT_27:
       slotEjecutar((uint8_t)(a - ACC_SLOT_1));
       return false;
 

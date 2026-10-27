@@ -35,8 +35,9 @@ enum Accion : uint8_t {
 
   ACC_BLOQUEAR_YA, ACC_FOTOS_YA,
 
-  // espacios editables del menu (Drivers/slots.h): deben ser consecutivos
-  ACC_SLOT_1, ACC_SLOT_2, ACC_SLOT_3
+  // macros propias de los menus Custom (Drivers/slots.h): 27, consecutivas
+  ACC_SLOT_1,
+  ACC_SLOT_27 = ACC_SLOT_1 + 26
 };
 
 // true si hay que redibujar la pantalla completa
