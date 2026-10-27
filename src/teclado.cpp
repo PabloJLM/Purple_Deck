@@ -85,7 +85,7 @@ static const Simbolo *buscarSimbolo(char c)
 static void escribirChar(char c)
 {
   const Simbolo *sim = buscarSimbolo(c);
-  if (!sim) { s_teclado.write((uint8_t)c); return; }
+  if (!sim) { s_teclado.write((uint8_t)c); delay(12); return; }
 
   if (sim->mods & M_SHIFT) s_teclado.press(KEY_LEFT_SHIFT);
   if (sim->mods & M_ALTGR) s_teclado.press(KEY_RIGHT_ALT);
@@ -93,6 +93,7 @@ static void escribirChar(char c)
   delay(5);
   s_teclado.releaseAll();
   if (sim->mods & M_MUERTA) s_teclado.write((uint8_t)' ');
+  delay(12);   // pausa entre teclas
 }
 
 static void escribirTexto(const char *t)
