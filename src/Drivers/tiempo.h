@@ -7,6 +7,7 @@
 #include <time.h>
 
 void tiempoIniciar();              // arranca el WiFi (no espera)
+void tiempoReconectar();           // reconecta con las credenciales actuales (Drivers/red.h)
 void tiempoLoop();                 // llamar en cada vuelta del loop
 bool wifiConectado();
 bool tiempoSincronizado();         // ya hay hora valida por NTP

@@ -23,9 +23,9 @@ struct Modo {
   bool        grados;      // true: muestra grados y los envuelve; false: cuenta pasos
 };
 
-static const Modo ROTAR = { "Rotar", "Arrastra para rotar",
+static const Modo ROTAR = { "Rotar", "Rotando",
                             ACC_SW_ROT_IZQ, ACC_SW_ROT_DER, ACC_SW_ROT_ARR, ACC_SW_ROT_ABA, true };
-static const Modo MOVER = { "Mover", "Arrastra para mover",
+static const Modo MOVER = { "Mover", "Moviendo",
                             ACC_SW_MOV_IZQ, ACC_SW_MOV_DER, ACC_SW_MOV_ARR, ACC_SW_MOV_ABA, false };
 
 static const Modo *s_modo = &ROTAR;

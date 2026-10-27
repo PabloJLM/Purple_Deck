@@ -3,7 +3,7 @@
 #include "Estaticos/temas.h"
 #include "Drivers/display.h"
 #include "config.h"
-#include "secrets.h"
+#include "Drivers/red.h"
 
 #define TARJETA_X  GAP
 #define TARJETA_W  (ANCHO - 2 * GAP)
@@ -59,14 +59,14 @@ void screenCredencialesEntrar()
   cabeceraDibujar("Credenciales", "< Ajustes");
 
   const int16_t y0 = CAB_ALTO + 8;
-  tarjeta("Red WiFi (SSID)", WIFI_SSID, y0);
-  tarjeta("Contrasena", WIFI_PASS, y0 + TARJETA_H + 8);
+  tarjeta("Red WiFi (SSID)", redSsid(), y0);
+  tarjeta("Contrasena", redPass(), y0 + TARJETA_H + 8);
 
   g->setTextSize(1.0f);
   g->setFont(&fonts::Font2);
   g->setTextDatum(middle_center);
   g->setTextColor(t.textoTenue);
-  g->drawString("Solo lectura. Se cambian con configurar.py y recompilando.", ANCHO / 2, ALTO - 20);
+  g->drawString("Solo lectura. Se cambian con tools.py o el comando red.", ANCHO / 2, ALTO - 20);
   pantallaEmpujarTodo();
 }
 

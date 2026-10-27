@@ -1,6 +1,6 @@
 #include "Drivers/tiempo.h"
 #include "config.h"
-#include "secrets.h"
+#include "Drivers/red.h"
 
 #include <WiFi.h>
 
@@ -20,9 +20,18 @@ void tiempoIniciar()
 {
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  WiFi.begin(redSsid(), redPass());
   s_ultimoIntento = millis();
-  Serial.printf("[wifi] conectando a %s\n", WIFI_SSID);
+  Serial.printf("[wifi] conectando a %s\n", redSsid());
+}
+
+void tiempoReconectar()
+{
+  s_ntpPedido = false;
+  WiFi.disconnect();
+  WiFi.begin(redSsid(), redPass());
+  s_ultimoIntento = millis();
+  Serial.printf("[wifi] conectando a %s\n", redSsid());
 }
 
 bool wifiConectado() { return WiFi.status() == WL_CONNECTED; }
@@ -36,7 +45,7 @@ void tiempoLoop()
     if (millis() - s_ultimoIntento > REINTENTO_MS) {
       s_ultimoIntento = millis();
       WiFi.disconnect();
-      WiFi.begin(WIFI_SSID, WIFI_PASS);
+      WiFi.begin(redSsid(), redPass());
       Serial.println("[wifi] reintentando");
     }
     return;

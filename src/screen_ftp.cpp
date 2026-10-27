@@ -6,7 +6,7 @@
 #include "Drivers/display.h"
 #include "Drivers/tiempo.h"
 #include "config.h"
-#include "secrets.h"
+#include "Drivers/red.h"
 
 #include <WiFi.h>
 #include <SimpleFTPServer.h>
@@ -27,9 +27,9 @@ static void iniciarFtp()
 {
   if (s_activo) return;
   sdMontada();  // asegura que la SD este montada antes de servirla por FTP
-  s_ftp.begin(FTP_USER, FTP_PASS, "Purple Deck FTP");
+  s_ftp.begin(redFtpUser(), redFtpPass(), "Purple Deck FTP");
   s_activo = true;
-  Serial.printf("[ftp] servidor iniciado (usuario %s)\n", FTP_USER);
+  Serial.printf("[ftp] servidor iniciado (usuario %s)\n", redFtpUser());
 }
 
 static void detenerFtp()
@@ -98,8 +98,8 @@ static void dibujar()
   if (wifi) snprintf(direccion, sizeof(direccion), "ftp://%s", WiFi.localIP().toString().c_str());
   else      snprintf(direccion, sizeof(direccion), "Sin conexion WiFi");
   tarjeta("Direccion", direccion, y0);
-  tarjeta("Usuario",   FTP_USER,  y0 + (TARJETA_H + 6));
-  tarjeta("Clave",     FTP_PASS,  y0 + 2 * (TARJETA_H + 6));
+  tarjeta("Usuario",   redFtpUser(),  y0 + (TARJETA_H + 6));
+  tarjeta("Clave",     redFtpPass(),  y0 + 2 * (TARJETA_H + 6));
 
   const char *estado;
   if (!wifi)        estado = "Esperando WiFi...";
