@@ -5,13 +5,34 @@
 #include "Drivers/acciones.h"
 #include "config.h"
 
+// ---------------------------------------------------------------------------
+//  Area tactil de SolidWorks. Se arrastra el dedo y por cada PASO_PX de
+//  recorrido se manda una pulsacion de flecha:
+//    Rotar : flechas              -> giran el modelo (en pasos de 15 grados)
+//    Mover : Ctrl + flechas       -> desplazan (pan) el modelo en la vista
+// ---------------------------------------------------------------------------
 #define AREA_Y   (CAB_ALTO + 4)
 #define AREA_H   (ALTO - AREA_Y - GAP)
 #define PASO_PX  30
 #define GRADOS   15
 
+struct Modo {
+  const char *titulo;
+  const char *ayuda;
+  Accion      izq, der, arr, aba;
+  bool        grados;      // true: muestra grados y los envuelve; false: cuenta pasos
+};
+
+static const Modo ROTAR = { "Rotar", "Arrastra para rotar",
+                            ACC_SW_ROT_IZQ, ACC_SW_ROT_DER, ACC_SW_ROT_ARR, ACC_SW_ROT_ABA, true };
+static const Modo MOVER = { "Mover", "Arrastra para mover",
+                            ACC_SW_MOV_IZQ, ACC_SW_MOV_DER, ACC_SW_MOV_ARR, ACC_SW_MOV_ABA, false };
+
+static const Modo *s_modo = &ROTAR;
+static Screen      s_volver = SCREEN_SOLIDWORKS;
+
 static int32_t s_ax = 0, s_ay = 0;
-static int16_t s_giroH = 0, s_giroV = 0;
+static int16_t s_h = 0, s_v = 0;
 
 static int16_t envolver(int16_t g)
 {
@@ -36,15 +57,16 @@ static void dibujarArea()
   g->setFont(&fonts::Font2);
   g->setTextDatum(top_center);
   g->setTextColor(t.textoTenue);
-  g->drawString("Arrastra para rotar la pieza", cx, AREA_Y + 10);
+  g->drawString(s_modo->ayuda, cx, AREA_Y + 10);
 }
 
-static void dibujarGiro(bool empujar = true)
+static void dibujarContador(bool empujar = true)
 {
   const Tema &t = T();
   lgfx::LGFXBase *g = pantalla();
   char b[32];
-  snprintf(b, sizeof(b), "H %+d   V %+d", s_giroH, s_giroV);
+  if (s_modo->grados) snprintf(b, sizeof(b), "H %+d   V %+d", s_h, s_v);
+  else                snprintf(b, sizeof(b), "X %+d   Y %+d", s_h, s_v);
   g->setTextSize(1.0f);
   g->setFont(&fonts::Font4);
   g->setTextDatum(bottom_center);
@@ -55,37 +77,47 @@ static void dibujarGiro(bool empujar = true)
   if (empujar) pantallaEmpujar(ANCHO / 2 - 130, AREA_Y + AREA_H - 40, 260, 34);
 }
 
-static bool paso(Accion a, int16_t &giro, int16_t delta)
+// dir: +1 / -1; eje: 0 = horizontal, 1 = vertical
+static bool paso(Accion a, int16_t &valor, int16_t delta)
 {
   accionEjecutar(a);
-  giro = envolver(giro + delta);
+  valor += delta;
+  if (s_modo->grados) valor = envolver(valor);
   return true;
 }
 
-void screenSwRotarEntrar()
+static void entrarModo(const Modo *m)
 {
-  s_giroH = s_giroV = 0;
+  s_modo = m;
+  s_h = s_v = 0;
   pantalla()->fillScreen(T().fondo);
-  cabeceraDibujar("Rotar pieza", "< Salir");
+  cabeceraDibujar(m->titulo, "< Salir");
   dibujarArea();
-  dibujarGiro(false);
+  dibujarContador(false);
   pantallaEmpujarTodo();
 }
 
-void screenSwRotarLoop()
+static void loopModo()
 {
-  if (cabeceraAtras()) { irAPantalla(SCREEN_SOLIDWORKS); return; }
+  if (cabeceraAtras()) { irAPantalla(s_volver); return; }
 
   if (toqueNuevo) { s_ax = toqueX; s_ay = toqueY; }
   if (!toqueActivo || !toquePropio || toqueY0 < AREA_Y) return;
 
+  const int16_t d = s_modo->grados ? GRADOS : 1;
   bool cambio = false;
-  while (toqueX - s_ax >= PASO_PX) { s_ax += PASO_PX; cambio = paso(ACC_SW_ROT_DER, s_giroH, +GRADOS); }
-  while (s_ax - toqueX >= PASO_PX) { s_ax -= PASO_PX; cambio = paso(ACC_SW_ROT_IZQ, s_giroH, -GRADOS); }
-  while (s_ay - toqueY >= PASO_PX) { s_ay -= PASO_PX; cambio = paso(ACC_SW_ROT_ARR, s_giroV, +GRADOS); }
-  while (toqueY - s_ay >= PASO_PX) { s_ay += PASO_PX; cambio = paso(ACC_SW_ROT_ABA, s_giroV, -GRADOS); }
+  while (toqueX - s_ax >= PASO_PX) { s_ax += PASO_PX; cambio = paso(s_modo->der, s_h, +d); }
+  while (s_ax - toqueX >= PASO_PX) { s_ax -= PASO_PX; cambio = paso(s_modo->izq, s_h, -d); }
+  while (s_ay - toqueY >= PASO_PX) { s_ay -= PASO_PX; cambio = paso(s_modo->arr, s_v, +d); }
+  while (toqueY - s_ay >= PASO_PX) { s_ay += PASO_PX; cambio = paso(s_modo->aba, s_v, -d); }
 
-  if (cambio) dibujarGiro();
+  if (cambio) dibujarContador();
 }
 
-void screenSwRotarSalir() {}
+void screenSwRotarEntrar() { entrarModo(&ROTAR); }
+void screenSwRotarLoop()   { loopModo(); }
+void screenSwRotarSalir()  {}
+
+void screenSwMoverEntrar() { entrarModo(&MOVER); }
+void screenSwMoverLoop()   { loopModo(); }
+void screenSwMoverSalir()  {}

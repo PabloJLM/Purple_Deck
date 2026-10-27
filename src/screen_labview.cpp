@@ -2,14 +2,14 @@
 #include "Estaticos/rejilla.h"
 #include "Drivers/acciones.h"
 
-// Iconos de 64x64 en LittleFS: /labview_1.png ... (en el orden de la tabla)
+// Solo texto: los iconos son unicamente los del menu principal.
 static const Item ITEMS[] = {
-  IT_ACC("Ejecutar",           nullptr, "/labview_1.png", ACC_LV_EJECUTAR),
-  IT_ACC("Detener",            nullptr, "/labview_2.png", ACC_LV_DETENER),
-  IT_ACC("Panel /\nDiagrama",  nullptr, "/labview_3.png", ACC_LV_PANEL_DIAGRAMA),
-  IT_ACC("Ayuda",              nullptr, "/labview_4.png", ACC_LV_AYUDA),
-  IT_ACC("Cables\nrotos",      nullptr, "/labview_5.png", ACC_LV_CABLES_ROTOS),
-  IT_ACC("Ordenar",            nullptr, "/labview_6.png", ACC_LV_ORDENAR),
+  IT_ACC("Ejecutar",           nullptr, nullptr, ACC_LV_EJECUTAR),
+  IT_ACC("Detener",            nullptr, nullptr, ACC_LV_DETENER),
+  IT_ACC("Panel /\nDiagrama",  nullptr, nullptr, ACC_LV_PANEL_DIAGRAMA),
+  IT_ACC("Ayuda",              nullptr, nullptr, ACC_LV_AYUDA),
+  IT_ACC("Cables\nrotos",      nullptr, nullptr, ACC_LV_CABLES_ROTOS),
+  IT_ACC("Ordenar",            nullptr, nullptr, ACC_LV_ORDENAR),
 };
 
 static const RejillaCfg CFG = {

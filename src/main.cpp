@@ -51,6 +51,7 @@ static void salirDe(Screen s)
     case SCREEN_MACROS:     screenMacrosSalir();     break;
     case SCREEN_SOLIDWORKS: screenSolidworksSalir(); break;
     case SCREEN_SW_ROTAR:   screenSwRotarSalir();    break;
+    case SCREEN_SW_MOVER:   screenSwMoverSalir();    break;
     case SCREEN_LABVIEW:    screenLabviewSalir();    break;
     case SCREEN_GIT:        screenGitSalir();        break;
     case SCREEN_BLENDER:    screenBlenderSalir();    break;
@@ -79,6 +80,7 @@ static void entrarEn(Screen s)
     case SCREEN_MACROS:     screenMacrosEntrar();     break;
     case SCREEN_SOLIDWORKS: screenSolidworksEntrar(); break;
     case SCREEN_SW_ROTAR:   screenSwRotarEntrar();    break;
+    case SCREEN_SW_MOVER:   screenSwMoverEntrar();    break;
     case SCREEN_LABVIEW:    screenLabviewEntrar();    break;
     case SCREEN_GIT:        screenGitEntrar();        break;
     case SCREEN_BLENDER:    screenBlenderEntrar();    break;
@@ -107,6 +109,7 @@ static void loopDe(Screen s)
     case SCREEN_MACROS:     screenMacrosLoop();     break;
     case SCREEN_SOLIDWORKS: screenSolidworksLoop(); break;
     case SCREEN_SW_ROTAR:   screenSwRotarLoop();    break;
+    case SCREEN_SW_MOVER:   screenSwMoverLoop();    break;
     case SCREEN_LABVIEW:    screenLabviewLoop();    break;
     case SCREEN_GIT:        screenGitLoop();        break;
     case SCREEN_BLENDER:    screenBlenderLoop();    break;

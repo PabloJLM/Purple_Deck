@@ -8,7 +8,7 @@
 #define GAP 6
 #define RAD 10
 
-#define IDLE_TIMEOUT_MS 10000UL
+#define IDLE_TIMEOUT_MS 90000UL   // 1 min 30 s
 #define BRILLO_NORMAL   200
 #define BRILLO_IDLE     110
 #define BRILLO_MIN_PCT  5
@@ -49,8 +49,6 @@ enum BloqueoModo : uint8_t { BLOQUEO_RELOJ = 0, BLOQUEO_SLIDES = 1 };
 // SolidWorks no trae atajo de fabrica para Extruir ni Sketch: el deck manda
 // Ctrl+Shift+<tecla> y hay que asignarlo en SolidWorks
 // (Herramientas > Personalizar > Teclado).
-#define SW_TECLA_EXTRUIR 'e'
-#define SW_TECLA_SKETCH  'k'
 
 #define TZ_LOCAL "CST6"
 #define NTP_1 "pool.ntp.org"
@@ -64,6 +62,7 @@ enum Screen : uint8_t {
   SCREEN_MACROS,
   SCREEN_SOLIDWORKS,
   SCREEN_SW_ROTAR,
+  SCREEN_SW_MOVER,
   SCREEN_LABVIEW,
   SCREEN_GIT,
   SCREEN_BLENDER,

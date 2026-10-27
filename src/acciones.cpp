@@ -30,12 +30,16 @@ static const AccionDef TABLA[] = {
   { ACC_SW_FRONTAL,        "SolidWorks", "Frontal",          "Ctrl+1" },
   { ACC_SW_SUPERIOR,       "SolidWorks", "Superior",         "Ctrl+5" },
   { ACC_SW_LATERAL,        "SolidWorks", "Lateral",          "Ctrl+4" },
-  { ACC_SW_EXTRUIR,        "SolidWorks", "Extruir",          "Ctrl+Shift+E (asignar en SW)" },
-  { ACC_SW_SKETCH,         "SolidWorks", "Sketch",           "Ctrl+Shift+K (asignar en SW)" },
+  { ACC_SW_ABRIR,          "SolidWorks", "Abrir",            "Ctrl+O" },
+  { ACC_SW_NUEVO,          "SolidWorks", "Nuevo archivo",    "Ctrl+N" },
   { ACC_SW_ROT_IZQ,        "SolidWorks", "Rotar izq",        "Left" },
   { ACC_SW_ROT_DER,        "SolidWorks", "Rotar der",        "Right" },
   { ACC_SW_ROT_ARR,        "SolidWorks", "Rotar arriba",     "Up" },
   { ACC_SW_ROT_ABA,        "SolidWorks", "Rotar abajo",      "Down" },
+  { ACC_SW_MOV_IZQ,        "SolidWorks", "Mover izq",        "Ctrl+Left" },
+  { ACC_SW_MOV_DER,        "SolidWorks", "Mover der",        "Ctrl+Right" },
+  { ACC_SW_MOV_ARR,        "SolidWorks", "Mover arriba",     "Ctrl+Up" },
+  { ACC_SW_MOV_ABA,        "SolidWorks", "Mover abajo",      "Ctrl+Down" },
 
   { ACC_LV_EJECUTAR,       "LabVIEW",    "Ejecutar",         "Ctrl+R" },
   { ACC_LV_DETENER,        "LabVIEW",    "Detener",          "Ctrl+." },
@@ -172,12 +176,16 @@ bool accionEjecutar(Accion a)
     case ACC_SW_FRONTAL:   tecladoAtajo({ TECLA_CTRL, '1' });  return false;
     case ACC_SW_SUPERIOR:  tecladoAtajo({ TECLA_CTRL, '5' });  return false;
     case ACC_SW_LATERAL:   tecladoAtajo({ TECLA_CTRL, '4' });  return false;
-    case ACC_SW_EXTRUIR:   tecladoAtajo({ TECLA_CTRL, TECLA_SHIFT, SW_TECLA_EXTRUIR }); return false;
-    case ACC_SW_SKETCH:    tecladoAtajo({ TECLA_CTRL, TECLA_SHIFT, SW_TECLA_SKETCH });  return false;
+    case ACC_SW_ABRIR:     tecladoAtajo({ TECLA_CTRL, 'o' });  return false;
+    case ACC_SW_NUEVO:     tecladoAtajo({ TECLA_CTRL, 'n' });  return false;
     case ACC_SW_ROT_IZQ:   tecladoAtajo({ TECLA_IZQ });        return false;
     case ACC_SW_ROT_DER:   tecladoAtajo({ TECLA_DER });        return false;
     case ACC_SW_ROT_ARR:   tecladoAtajo({ TECLA_ARRIBA });     return false;
     case ACC_SW_ROT_ABA:   tecladoAtajo({ TECLA_ABAJO });      return false;
+    case ACC_SW_MOV_IZQ:   tecladoAtajo({ TECLA_CTRL, TECLA_IZQ });    return false;
+    case ACC_SW_MOV_DER:   tecladoAtajo({ TECLA_CTRL, TECLA_DER });    return false;
+    case ACC_SW_MOV_ARR:   tecladoAtajo({ TECLA_CTRL, TECLA_ARRIBA }); return false;
+    case ACC_SW_MOV_ABA:   tecladoAtajo({ TECLA_CTRL, TECLA_ABAJO });  return false;
 
     // LabVIEW
     case ACC_LV_EJECUTAR:       tecladoAtajo({ TECLA_CTRL, 'r' }); return false;
