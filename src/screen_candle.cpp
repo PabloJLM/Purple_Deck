@@ -10,12 +10,14 @@ static const Item ITEMS[] = {
   IT_ACC("Abortar",         nullptr, "/candle_3.png", ACC_CN_ABORTAR),
   IT_ACC("Reset",           nullptr, "/candle_4.png", ACC_CN_RESET),
   IT_ACC("Desbloquear",     nullptr, "/candle_5.png", ACC_CN_DESBLOQUEAR),
-  IT_ACC("Ir a\nX0 Y0",     nullptr, "/candle_6.png", ACC_CN_HOME_XY),
   IT_PANT("Mover",          "X Y Z",  "/candle_7.png", SCREEN_CANDLE_MOVER),
   // pagina 2
   IT_ACC("Husillo\non/off", nullptr, "/candle_9.png", ACC_CN_HUSILLO),
   IT_ACC("Heightmap",       nullptr, "/candle_10.png", ACC_CN_HEIGHTMAP),
   IT_ACC("Probe Z",         nullptr, "/candle_11.png", ACC_CN_PROBE_Z),
+  IT_ACC("Zero XY",         nullptr, "/candle_12.png", ACC_CN_ZERO_XY),
+  IT_ACC("Zero Z",          nullptr, "/candle_13.png", ACC_CN_ZERO_Z),
+  IT_ACC("Ir a\nX0 Y0",     nullptr, "/candle_6.png",  ACC_CN_IR_XY0),
   IT_ACC("Z+",              nullptr, "/candle_z_mas.png",   ACC_CN_Z_MAS),
   IT_ACC("Z-",              nullptr, "/candle_z_menos.png", ACC_CN_Z_MENOS),
 };

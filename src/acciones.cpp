@@ -68,9 +68,11 @@ static const AccionDef TABLA[] = {
   { ACC_CN_ENVIAR,         "Candle",     "Enviar G-code",    "F5" },
   { ACC_CN_PAUSA,          "Candle",     "Pausa",            "F6" },
   { ACC_CN_ABORTAR,        "Candle",     "Abortar",          "F7" },
-  { ACC_CN_HOME_XY,        "Candle",     "Ir a X0 Y0",       "F8 (comando usuario 1)" },
   { ACC_CN_DESBLOQUEAR,    "Candle",     "Desbloquear",      "F9" },
   { ACC_CN_RESET,          "Candle",     "Reset",            "F11" },
+  { ACC_CN_ZERO_XY,        "Candle",     "Zero XY",          "F8 (comando usuario 1)" },
+  { ACC_CN_ZERO_Z,         "Candle",     "Zero Z",           "Ctrl+F8 (comando usuario 2)" },
+  { ACC_CN_IR_XY0,         "Candle",     "Ir a X0 Y0",       "Ctrl+F7 (comando usuario 4)" },
   { ACC_CN_PROBE_Z,        "Candle",     "Probe Z",          "Ctrl+F9 (comando usuario 3)" },
   { ACC_CN_HEIGHTMAP,      "Candle",     "Crear heightmap",  "Ctrl+F6" },
   { ACC_CN_HUSILLO,        "Candle",     "Husillo on/off",   "Num 0" },
@@ -221,9 +223,11 @@ bool accionEjecutar(Accion a)
     case ACC_CN_ENVIAR:        tecladoAtajo({ TECLA_F5 });               return false;
     case ACC_CN_PAUSA:         tecladoAtajo({ TECLA_F6 });               return false;
     case ACC_CN_ABORTAR:       tecladoAtajo({ TECLA_F7 });               return false;
-    case ACC_CN_HOME_XY:       tecladoAtajo({ TECLA_F8 });               return false;
     case ACC_CN_DESBLOQUEAR:   tecladoAtajo({ TECLA_F9 });               return false;
     case ACC_CN_RESET:         tecladoAtajo({ TECLA_F11 });              return false;
+    case ACC_CN_ZERO_XY:       tecladoAtajo({ TECLA_F8 });               return false;
+    case ACC_CN_ZERO_Z:        tecladoAtajo({ TECLA_CTRL, TECLA_F8 });   return false;
+    case ACC_CN_IR_XY0:        tecladoAtajo({ TECLA_CTRL, TECLA_F7 });   return false;
     case ACC_CN_PROBE_Z:       tecladoAtajo({ TECLA_CTRL, TECLA_F9 });   return false;
     case ACC_CN_HEIGHTMAP:     tecladoAtajo({ TECLA_CTRL, TECLA_F6 });   return false;
     case ACC_CN_HUSILLO:       tecladoAtajo({ TECLA_NUM0 });             return false;
